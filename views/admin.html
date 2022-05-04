@@ -1,0 +1,182 @@
+<div class="row">
+  <div class="col-lg-12 admin-block-unit">
+    <div class="row">
+      <div class='admin-top-bar'>
+        <p ng-hide="entStatus.isEnterprise && me.permissions.account.owner">Account Management</p>
+        <p ng-if="entStatus.isEnterprise && me.permissions.account.owner">Enterprise Account Management</p>
+        <div class="nav hamburger">
+          <button type="button" class="navbar-toggle toggle-menu" on-document-click="toggleMenu($event)">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="row main-content">
+      <div class="col-xs-2 admin-side-nav" ng-class="{display: displayMenu}">
+        <div class="account-left-menu">
+          <div class="title-block">Account</div>
+          <!-- TODO: need to change ng-if below to allow access for non-enterprise -->
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('zones')"
+             ng-click='changelocation("/admin/zones")'
+          >
+            <i class="fa fa-th-large"></i>&nbsp;Zones
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('locations')"
+             ng-if="me.permissions.account.owner || me.permissions.account.payment"
+             ng-click='changelocation("/admin/locations")'
+          >
+            <i class="fa fa-building"></i>&nbsp;Locations
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('regions')"
+             ng-click='changelocation("/admin/regions")'
+             ng-if='entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music || me.permissions.account.messages)'>
+            <i class="fa fa-globe"></i>&nbsp;Regions
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('enterprise')"
+             ng-click='changelocation("/admin/enterprise")'
+             ng-if="!entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.payment)">
+            <i class="fa fa-rocket"></i>&nbsp;Manage
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('admins')"
+             ng-click='changelocation("/admin/admins")'
+             ng-if='entStatus.isEnterprise && me.permissions.account.owner'>
+            <i class="fa fa-user"></i>&nbsp;Admins
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('reports')"
+             ng-click='changelocation("/admin/enterprise/reports")'
+             ng-if='entStatus.isEnterprise &&
+               (me.permissions.account.owner || me.permissions.account.payment || me.permissions.account.music || me.permissions.account.messages)'>
+            <i class="fa fa-table"></i>&nbsp;Reports
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('billing')"
+             ng-click='changelocation("/admin/billing")'
+             ng-if="me.permissions.account.owner || me.permissions.account.payment">
+            <i class="fa fa-credit-card"></i>&nbsp;Billing
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('devices')"
+             ng-click='changelocation("/admin/devices")'
+             ng-if="me.permissions.account.owner">
+            <i class="fa fa-cogs"></i>&nbsp;Devices
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('prefetch')"
+             ng-click='changelocation("/admin/prefetch")'
+             ng-if="me.permissions.account.owner && me.account.use_prefetch">
+            <i class="fa fa-cloud-download"></i>&nbsp;Prefetch
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('orderdevice')"
+             ng-click='changelocation("/admin/orderdevice")'
+             ng-if="me.permissions.account.owner || me.permissions.account.payment">
+            <i class="fa fa-cart-plus"></i>&nbsp;Order CloudBox
+          </a>
+          <div class="title-block"
+               ng-if="(entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music)) ||
+                        me.permissions.user.manage_music"
+          >
+            Music
+          </div>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('dayparting')"
+             ng-click='changelocation("/admin/dayparting")'
+             ng-if='(entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music)) ||
+                      me.permissions.user.manage_music'
+          >
+            <i class="fa fa-calendar"></i>&nbsp;Dayparting
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('playlists')"
+             ng-click='changelocation("/admin/mix")'
+             ng-if="(entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music)) ||
+                      me.permissions.user.manage_music"
+          >
+            <i class="fa fa-tasks"></i>&nbsp;Mix Stations
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('downvote')"
+             ng-click='changelocation("/admin/removedsongs")'
+             ng-if="(entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music)) ||
+                      me.permissions.user.can_downvote"
+          >
+            <i class="fa fa-thumbs-down"></i>&nbsp;Removed Songs
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('streamhistory')"
+             ng-click='changelocation("/admin/streamhistory")'
+             ng-if="((entStatus.isEnterprise || me.permissions.account.owner) && (me.permissions.user.can_downvote && me.permissions.user.can_play_music)) ||
+                      (me.permissions.user.can_downvote && me.permissions.user.can_play_music)"
+          >
+            <i class="fa fa-history"></i>&nbsp;Stream History
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('companystations')"
+             ng-click='changelocation("/admin/companystations")'
+             ng-if="entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music)">
+            <i class="fa fa-list-alt"></i>&nbsp;Company Selections
+          </a>
+
+          <div class="title-block"
+               ng-if='me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages'
+           >
+            Messages
+          </div>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('message_library')"
+             ng-click='changelocation("/admin/messages")'
+             ng-if='subscription.messages > 0 && (me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages)'>
+            <i class="fa fa-microphone"></i>&nbsp;Your Library
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('message_presets')"
+             ng-click='changelocation("/admin/messages/presets")'
+             ng-if='subscription.messages > 0 && (me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages)'>
+            <i class="fa fa-tasks"></i>&nbsp;Presets
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('message_schedules')"
+             ng-click='changelocation("/admin/messages/schedules")'
+             ng-if='subscription.messages > 0 && (me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages)'>
+            <i class="fa fa-calendar"></i>&nbsp;Schedules
+          </a>
+          <a href=""
+             class="btn btn-primary btn-sm"
+             ng-class="activeLink('messageUpgrade')"
+             ng-click='changelocation("/admin/messageUpgrade")'
+             ng-if='(subscription.messages == NULL ||  subscription.messages == 0) && (me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages)'>
+            <i class="fa fa-hdd-o"></i>&nbsp;Messages
+          </a>
+        </div>
+      </div>
+      <div class="col-xs-10 admin-content" ng-class="{ 'admin-content-edit-mix-station': currentNavState === 'account.admin.createMixStation' || currentNavState === 'account.admin.editMixStation' }" ui-view></div>
+    </div>
+    <div class="api-version">&nbsp;API v<span ng-bind="::version"></span></div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<form class="remove-song-modal" novalidate ng-submit="">
+  <div class="modal-body text-center">
+    <div class="activate-success">
+      <i class="fa fa-4x fa-thumbs-down animated zoom-in"></i>
+      <p>You are removing <strong ng-bind="::name"></strong> by <strong ng-bind="::artist"></strong>.</p>
+    </div>
+
+    <div class="remove-config">
+      <label>
+        <input type="checkbox" ng-model="shouldSkip" /> Skip to next song
+      </label>
+      <label ng-show="canSetGlobal">
+        <input type="checkbox" ng-model="isGlobal" /> Remove from all locations
+      </label>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn submit btn-primary" type="submit" ng-click="remove()">
+      Remove Song
+    </button>
+    <button class="btn cancel" type="submit" ng-click="cancel()">
+      Cancel
+    </button>
+  </div>
+</form>

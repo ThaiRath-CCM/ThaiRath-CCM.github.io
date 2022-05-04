@@ -1,0 +1,15 @@
+<div class="row default-container">
+	<div class="col-md-12">
+		<div class="default-block">
+			<h2>Change subscription plan</h2>
+			<div class="devider">Regular plans</div>
+			<div ng-repeat="rplan in plans" class="default-row">
+				<div class="name">{{rplan.name}}</div>
+			</div>
+			<div class="devider">Enterprise plans</div>
+			<div ng-repeat="eplan in enterprise" class="default-row">
+				<div class="name">{{eplan.name}}</div>
+			</div>
+		</div>
+	</div>
+</div>

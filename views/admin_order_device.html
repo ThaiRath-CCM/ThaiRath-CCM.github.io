@@ -1,0 +1,181 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="content-form order-device">
+      <form novalidate name="orderDevice" ng-submit="submit(selectedUser, selectedStream)">
+        <div class="order-form-address">
+          <h2>CloudBox Order Information</h2>
+          <div class="form-group row">
+            <div class="username">
+              <label for="location-username">Location Username</label>
+              <select class="form-control col-md-6" id="location-username" required
+                      ng-model="selectedUser"
+                      ng-options="user.username for user in users | orderBy: 'username'"
+                      ng-change="getUser(selectedUser); calculateTax(); calculateProp65();">
+                <option value="">-- Select a location --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="zonename">
+              <label for="location-zone-name">Zone Name</label>
+              <select class="form-control col-md-6" id="location-zone-name"
+                      ng-model="selectedStream"
+                      ng-options="stream.streamname for stream in streams | orderBy: 'streamname'">
+                <option value="">-- Select a zone --</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="phone">
+              <label for="location-phone">Location Phone Number</label>
+              <input class="form-control" id="location-phone" autocomplete="tel-national" type="text" placeholder="10 Digit Phone Number" required
+                     ng-model="selectedUser.phone"
+                     ng-disabled="shipTo.corporate">
+            </div>
+          </div>
+          <p class="po-box-notice"><i class="fa fa-info-circle fa-push-right"></i>Please note that we currently do not offer shipping to PO Boxes.</p>
+          <div class="form-group row flexed">
+            <div class="address">
+              <label for="location-shipping-address">Shipping Address</label>
+              <input class="form-control" id="location-shipping-address" autocomplete="street-address address-line1" type="text" placeholder="Street Address"
+                     ng-model="selectedUser.street"
+                     ng-model-options="{updateOn: 'blur'}"
+                     ng-change="calculateTax()"
+                     ng-required="!shipTo.corporate"
+                     ng-disabled="shipTo.corporate">
+            </div>
+            <div class="address2">
+              <label for="location-suite">Suite</label>
+              <input class="form-control" id="location-suite" autocomplete="street-address address-line2" type="text"
+                     ng-model="selectedUser.street2"
+                     ng-disabled="shipTo.corporate">
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="city">
+              <label for="location-city">City</label>
+              <input class="form-control" id="location-city" autocomplete="address-level2" type="text"
+                     ng-model="selectedUser.city"
+                     ng-model-options="{updateOn: 'blur'}"
+                     ng-change="calculateTax()"
+                     ng-required="!shipTo.corporate"
+                     ng-disabled="shipTo.corporate">
+            </div>
+            <div class="state">
+              <label for="location-state">State / Prov.</label>
+              <select class="form-control" id="location-state" autocomplete="address-level1"
+                     ng-model="selectedUser.state"
+                     ng-disabled="shipTo.corporate"
+                     ng-options="item.abbreviation as item.name for item in statesProvinces"
+                     ng-required="!shipTo.corporate"
+                     ng-change="calculateTax(); calculateProp65();">
+              </select>
+            </div>
+            <div class="zipcode">
+              <label for="location-zip">ZIP / Postal</label>
+              <input class="form-control" id="location-zip" autocomplete="postal-code" type="text"
+                     ng-class="{'invalid-input': invalidInput && !shipTo.corporate}"
+                     ng-model="selectedUser.zipcode"
+                     ng-required="!shipTo.corporate"
+                     ng-disabled="shipTo.corporate"
+                     ng-pattern="/(^\d{5}(-\d{4})?$)|(^[ABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Z]{1} *\d{1}[A-Z]{1}\d{1}$)/i"
+                     ng-change="calculateTax()">
+            </div>
+          </div>
+          <div class="checkbox ship-to-corp" ng-if="account.street_address">
+            <label>
+              <input type="checkbox" ng-model="shipTo.corporate" ng-change="calculateTax(); calculateProp65();"><strong>Ship to Corporate Address</strong></br>
+              {{account.name}}</br>
+              {{account.street_address}}</br>
+              {{account.city}}, {{account.state}} {{account.zipcode}}
+            </label>
+          </div>
+          <!-- <p style="margin-top: 15px;"><strong><sup>*</sup> We currently do not offer shipping to PO boxes.</strong></p> -->
+          <div id="billingBtn" class="form-group add-billing" ng-if="!subscriptionInfo.hasPayment">
+            <h2>Billing Information</h2>
+            <div class="btn btn-primary" ng-if="!hasManualBilling" ng-click="showBillingForm()">Add Credit Card</div>
+            <div ng-if="hasManualBilling">Your account is currently set to Manual Billing.</div>
+          </div>
+        </div>
+        <div class="order-form-checkout">
+          <div class="section shipping-rates">
+            <div ng-if="continentalShipping">
+              <label>Select Your Shipping Option</label></br>
+              <input id="r1" name="shipgroup" type="radio" ng-model="selectedRate.choice" ng-value="0">
+              <label for="r1" class="shiplabel">{{shippingRates[0].name}} - ${{shippingRates[0].value}}</label></br>
+              <input class="shipping-rate-next-input" id="r2" name="shipgroup" type="radio" ng-model="selectedRate.choice" ng-value="1" ng-change="confirmNextDayShipping()" disabled>
+              <label for="r2" class="shiplabel shipping-rate-next-label">{{shippingRates[1].name}} - ${{shippingRates[1].value}}</label></br>
+              <span class="help-text"><i class="fa fa-info-circle fa-push-right"></i>Expedited orders will return once the COVID-19 restrictions and shipping interruptions have been lifted.</span>
+            </div>
+            <div ng-if="!continentalShipping">
+              <label>Shipping to {{shipTo.dest}}</label></br>
+              <input id="r3" name="shipgroup" type="radio" ng-model="selectedRate.choice" ng-value="2">
+              <label for="r3" class="shiplabel">{{shippingRates[2].name}} - ${{shippingRates[2].value}}</label></br>
+              <div class="empty"></div>
+            </div>
+            <div class="shipping-note">
+              <i class="fa fa-info-circle fa-push-right"></i>Multiple boxes shipping on the same business day to the same address will be packaged together with only one shipping fee.  
+            </div>
+          </div>
+          <div class="section summary">
+            <div class="cost-detail">
+              <div class="cost-item">
+                <div class="description">CloudBox</div>
+                <div class="cost">
+                  <div>$</div>
+                  <div>{{cloudBoxPrice | number:2 }}</div>
+                </div>
+              </div>
+              <div class="cost-item" ng-if="tax">
+                <div class="description">CA Tax</div>
+                <div class="cost">
+                  <div>$</div>
+                  <div>{{tax | number: 2}}</div>
+                </div>
+              </div>
+              <div class="cost-item">
+                <div class="description">Shipping</div>
+                <div class="cost">
+                  <div>$</div>
+                  <div>{{shippingRates[selectedRate.choice].value | number: 2}}</div>
+                </div>
+              </div>
+              <div class="cost-item">
+                <div class="description">Total</div>
+                <div class="cost">
+                  <div>$</div>
+                  <div>{{calculateTotal() | number: 2}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="section terms">
+            <label class="checkbox-inline" ng-show="showProp65">
+              <input type="checkbox"
+                ng-model="prop65_checkbox"
+                ng-required="showProp65">
+              <div class="prop65">
+                <img src="../images/prop65warning.png" />
+                WARNING: This product can expose you to chemicals including nickel which is known to the State of California to cause cancer and birth defects or other reproductive harm. For more information go to
+                <a href="https://www.p65warnings.ca.gov/" target="_blank">www.P65Warnings.ca.gov</a>.
+              </div>
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" ng-model="terms_checkbox" required>
+              I agree to the Cloud Cover Music <strong><a href="https://media.cloudcovermusic.com/Cloud_Cover_Media_Terms_and_Conditions.pdf" target="_blank">terms</a></strong> and to a charge of <strong>${{calculateTotal() | number: 2}}</strong> upon shipping.
+            </label>
+            <button type="submit"
+                    class="btn btn-success"
+                    ng-disabled="checkDisabled()"
+            >
+              Order CloudBox
+            </button>
+            <label>
+              <div class="warranty-link">Click here to view CloudBox <strong><a target="_blank" href="https://cloudcovermusic.com/warranty">warranty</a></strong></div>
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

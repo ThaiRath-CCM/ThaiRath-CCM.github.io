@@ -1,0 +1,59 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="alert alert-warning covid-19-notice">
+      <h2 class="no-margin-top">Looking to pause your account due to COVID-19 or seasonal business?</h2>
+      <p>Please chat with Support online or call us and we will work with you so that you are not billed temporarily and come back online without having to lift a finger.</p>
+      <ul>
+        <li>Chat online with Support by clicking the blue messenger icon in the bottom-right corner.</li>
+        <li>Chat over the phone with Support by calling <a href="tel:844-422-6249">(844) 422-6249</a></li>
+      </ul>
+    </div>
+    <div class="content-form">
+      <form ng-submit="submit()" class="cancelation-form">
+        <h2>We're really sad to see you go!</h2>
+        <p>Is there anything we can do to change your mind?</p>
+        <div class="form-group">
+          <div class="form-inline">
+            <label>Reason for Leaving</label>
+            <select ng-model="selected_reason.reason" ng-change="checkButton()" name="reason" class="form-control" required>
+              <option selected disabled></option>
+              <option ng-repeat="reason in request_reasons" value="{{reason}}">{{reason}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" ng-show="selected_reason.reason == 'Seasonal Closure'">
+          <label>Send a reminder to reactivate our Cloud Cover service on:</label>
+          <div class="form-inline">
+            <label>Month</label>
+            <select ng-model="seasonal_month" name="seasonal_month" ng-change="getDays();checkButton()" class="form-control" ng-required="selected_reason.reason == 'Seasonal Closure'">
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+
+            <label>Day</label>
+            <select ng-model="seasonal_day" name="seasonal_day" ng-options="day for day in days" ng-change="checkButton()" class="form-control" ng-required="selected_reason.reason == 'Seasonal Closure'">
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Please let us know more about why you're leaving. We LOVE feedback, especially the negative stuff.</label>
+          <textarea ng-model="formdata.notes" ng-keyup="checkButton()" class="form-control" rows="3" maxlength="250"></textarea>
+        </div>
+        <div>
+          If you cancel your subscription, your payment is non-refundable and your subscription will continue until the end of your billing cycle.
+        </div>
+        <button type="submit" class="btn btn-success" ng-disabled="submitDisabled">Request Cancellation</button>
+      </form>
+    </div>
+  </div>
+</div>

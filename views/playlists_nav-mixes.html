@@ -1,0 +1,33 @@
+<div class='account-playlists tabs'>
+  <nav class="navbar navbar-default" ng-class="{mobile: isMobile, 'filter-open': filterMenuOpen}">
+    <div class="nav container">
+      <div class="navbar">
+        <ul class="nav navbar-nav">
+          <li ng-repeat="set in playlistNav" class="title nav-link" ng-class="{selected: currentNav == set.id}" ng-click="changelocation(set.url)" name="{{set.id}}">
+            <i ng-show="set.icon" class="fa fa-{{set.icon}}"></i>{{set.name}}
+          </li>
+        </ul>
+      </div>
+      <div class="search-icon" ng-click="toggleSearch()" ng-show="allowSearch && !showSearch && isMobile"><i class="fa fa-search"></i></div>
+      <div class="playlist-search" ng-show="allowSearch" ng-class="{open: showSearch, mobile: isMobile}">
+        <div class="search-input">
+          <input type='text' focus-when-true="showSearch" class='searchbox form-control filter' search-field placeholder="Search" ng-model='musicsearch' ng-change='updateSearch()'>
+        </div>
+        <div class="search-icon" ng-show="!isMobile"><i class="fa fa-search"></i></div>
+        <div class="cancel-button" ng-show="isMobile" ng-click="toggleSearch()">Cancel</div>
+      </div>
+    </div>
+  </nav>
+  <div id="playlistToolbar" class="playlist-toolbar">
+    <div class="my-mixes btn" ng-class="{open: mixesOpen}" ng-click="toggleMyMixes()">
+      <i class="icon fa fa-random"></i>
+      My Mixes
+      <i class="chevron fa" ng-class="{'fa-chevron-right': !mixesOpen, 'fa-chevron-down': mixesOpen}"></i>
+    </div>
+    <div class="filters btn" ng-class="{open: filterMenuOpen}" ng-click="toggleFilters()">
+      <i class="icon fa fa-sliders"></i>
+      Filters
+      <i class="chevron fa" ng-class="{'fa-chevron-right': !filterMenuOpen, 'fa-chevron-down': filterMenuOpen}"></i>
+    </div>
+  </div>
+</div>

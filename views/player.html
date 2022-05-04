@@ -1,0 +1,173 @@
+<div class="media-toolbar-launcher" ng-click="launchMediaBar()" ng-class="{mobile: isMobile, open: mobileMediaToolbarOpen, 'intercom-open': intercomLauncherOpen}">
+  <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+</div>
+<div class='media-toolbar' ng-class="{mobile: isMobile, iOS: isIOS, Android: isAndroid, open: mobileMediaToolbarOpen}">
+  <div class="mobile-close-button" ng-click="closeMediaBar()" hm-swipedown="closeMediaBar()">
+    <i class="fa fa-chevron-down"></i>
+  </div>
+  <media-toolbar-error-message ng-if="!isMobile"></media-toolbar-error-message>
+  <div class="media-left-side">
+    <div class="disable-message" ng-if="!isMobile && (isPlayerState('emptydaypart') || isPlayerState('nomusic'))">
+      <div class="empty-daypart info-message" ng-show="isPlayerState('emptydaypart')">
+        Your selected daypart has silence scheduled at this time
+      </div>
+      <div class="no-music info-message" ng-show="isPlayerState('nomusic')">
+        No music in your station. Please see your company administrator.
+      </div>
+    </div>
+
+    <current-play-infobox class="current-play-infobox" ng-if="!isMobile" ng-class="{disabled: (isPlayerState('inactive') || isPlayerState('emptydaypart') || isPlayerState('nomusic') || isPlayerState('error') || isPlayerState('fatal'))}">
+    </current-play-infobox>
+  </div>
+  <div ng-show="!isMobile && canPlayMusic" class="control-container">
+    <div class="controls" ng-class="{disabled: isPlayerState('inactive') && !initialAutoLoginState}">
+      <div class="btn-group" role="group">
+        <a class="btn btn-primary btn-sm remove-btn"
+          ng-class="{ disabled: cannotRemoveCurrentMedia(), active: currentMedia.feedbackValue == 'DOWN' }"
+          ng-click="removeSong()"
+          tooltip="{{removeBtnTitle}}"
+          tooltip-placement="top"
+          tooltip-append-to-body="true">
+          <i class="fa fa-thumbs-down"></i>
+        </a>
+        <a class="btn btn-primary btn-sm history-btn" ng-click="showHistory($event, selectedStream.streamid)" ng-class="{disabled: !selectedStream.streamid}">
+          <i class="fa fa-history"></i>
+        </a>
+        <!-- remote pause/play -->
+        <a class="btn btn-primary btn-sm play-btn" ng-if="isRemoteControlMode()" ng-class="{disabled: !canPauseMedia}" ng-click="remotePause()">
+          <i class="fa fa-pause"></i>
+        </a>
+        <a class="btn btn-primary btn-sm play-btn" ng-if="isRemoteControlMode()" ng-class="{disabled: !canPauseMedia}" ng-click="remotePlay()">
+          <i class="fa fa-play"></i>
+        </a>
+        <!-- local pause/play -->
+        <a class="btn btn-primary btn-sm play-btn" ng-if="!isRemoteControlMode()" ng-class="{semidisabled: (!canPauseMedia && (!initialAutoLoginState || !enableBlink)) || isPlayerState('nomusic') || isPlayerState('error') || isPlayerState('fatal'), blinkUIButton: enableBlink}" ng-click="toggleMedia($event, selectedStream.streamid)">
+          <i class="fa play-icon fa-pause" ng-if="canBePaused()"></i>
+          <i class="fa play-icon fa-play" ng-if="canBePlayed()"></i>
+        </a>
+        <a class="btn btn-primary btn-sm skip-btn" ng-class="{disabled: (currentMedia.mediaType !== 'song' && isPlayingMode() ) || !canSkipMedia || noDevice() || isAtSkipLimit()}" ng-click="skipSong()">
+          <i class="fa fa-step-forward"></i>
+        </a>
+        <a class="btn btn-primary btn-sm like-btn"
+          ng-class="{ disabled: cannotLikeCurrentMedia(), active: currentMedia.feedbackValue == 'UP' }"
+          ng-click="toggleSongLike()"
+          tooltip="{{likeBtnTitle}}"
+          tooltip-placement="top"
+          tooltip-append-to-body="true">
+          <i class="fa fa-thumbs-up"></i>
+        </a>
+        <a class="btn btn-primary btn-sm volume-btn" ng-click="showVolumeControl($event, selectedStream)" ng-class="{disabled: noDevice()}">
+          <i class="fa fa-volume-down"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="misc-functions" ng-class="{disabled: !canPlayMusic}" hm-swipedown="closeMediaBar()">
+    <div class="disable-overlay"></div>
+    <current-play-infobox class="current-play-infobox" ng-if="isMobile" ng-class="{disabled: (isPlayerState('inactive') || isPlayerState('emptydaypart') || isPlayerState('nomusic') || isPlayerState('error') || isPlayerState('fatal'))}">
+    </current-play-infobox>
+    <div class="status-icons">
+      <i class="fa fa-spinner fa-spin" ng-show="!isMobile && (isLoadingInitialMedia || isPlayerState('buffering'))" ng-class="{ searching: isLoadingInitialMedia, buffering: isPlayerState('buffering') }"></i>
+    </div>
+    <div class="mobile-button-container" ng-show="isMobile">
+      <div class="mobile-buttons first-row">
+        <a class="btn btn-primary btn-sm remove-btn"
+          ng-class="{ disabled: cannotRemoveCurrentMedia(), active: currentMedia.feedbackValue == 'DOWN' }"
+          ng-click="removeSong()"
+          tooltip="{{removeBtnTitle}}"
+          tooltip-placement="top"
+          tooltip-append-to-body="true">
+          <i class="fa fa-thumbs-down"></i>
+        </a>
+        <a class="btn btn-primary btn-sm history-btn" ng-click="showHistory($event, selectedStream.streamid)" ng-class="{disabled: !selectedStream.streamid}">
+          <i class="fa fa-history"></i>
+        </a>
+        <a class="btn btn-primary btn-sm play-btn" ng-class="{disabled: !canPauseMedia}" ng-click="remotePause()">
+          <i class="fa fa-pause"></i>
+        </a>
+        <a class="btn btn-primary btn-sm play-btn" ng-class="{disabled: !canPauseMedia}" ng-click="remotePlay()">
+          <i class="fa fa-play"></i>
+        </a>
+        <a class="btn btn-primary btn-sm skip-btn" ng-class="{disabled: (currentMedia.mediaType !== 'song' && isPlayingMode() ) || !canSkipMedia || noDevice() || isAtSkipLimit()}" ng-click="skipSong()">
+          <i class="fa fa-step-forward"></i>
+        </a>
+        <a class="btn btn-primary btn-sm like-btn"
+          ng-class="{ disabled: cannotLikeCurrentMedia(), active: mediaInfo.liked }"
+          ng-click="toggleSongLike()"
+          tooltip="{{likeBtnTitle}}"
+          tooltip-placement="top"
+          tooltip-append-to-body="true">
+          <i class="fa fa-thumbs-up"></i>
+        </a>
+      </div>
+      <div class="mobile-buttons second-row">
+        <i class="fa fa-volume-up"></i>
+        <a class="btn btn-primary btn-sm volume-btn lower-volume" ng-click="lowerVolume(selectedStream)" ng-class="{disabled: noDevice()}">
+          <i class="fa fa-minus"></i>
+        </a>
+        <a class="btn btn-primary btn-sm volume-btn raise-volume" ng-click="raiseVolume(selectedStream)" ng-class="{disabled: noDevice()}">
+          <i class="fa fa-plus"></i>
+        </a>
+        <div class="zone-selector" ng-click="toggleStreamListPopup()" ng-if="!autoLogin"><span class="stream-icon-container"><i ng-show="selectStreamIcon" class="fa {{selectStreamIcon}} stream-icon"></i></span><span class="stream-name" tooltip-placement="left" tooltip="{{selectStreamTooltip}}">{{selectStreamLabel}}</span><i class="fa fa-caret-down"></i></div>
+      </div>
+    </div>
+    <div class="zone-selector" ng-click="toggleStreamListPopup()" ng-if="!autoLogin && !isMobile"><i ng-show="selectStreamIcon" class="fa {{selectStreamIcon}} stream-icon"></i><span class="stream-name" tooltip-placement="left" tooltip="{{selectStreamTooltip}}">{{selectStreamLabel}}</span><i class="fa fa-caret-down"></i></div>
+    <div class="zone-label" ng-if="autoLogin"><i ng-if="selectStreamIcon" class="fa {{selectStreamIcon}}"></i><span class="stream-name" tooltip-placement="left" tooltip="{{autoLoginStreamTooltip}}">{{autoLoginStreamLabel}}</span></div>
+    <div class="remote-toggle" ng-if="!autoLogin && !isMobile" ng-class="{disabled: !toggleEnabled}">
+      <div class="stream-label label" ng-click="switchControlMode($event)" ng-class="{selected: isPlayingMode()}"><i class="fa fa-play"></i><span class="text">Play Here</span></div>
+      <div class="switch-background" ng-class="{browser: isPlayingMode(), remote: isRemoteControlMode()}" ng-click="switchControlMode($event)">
+        <div class="toggle-switch" ng-click="switchControlMode($event)" ng-class="{browser: isPlayingMode(), remote: isRemoteControlMode()}"></div>
+      </div>
+      <div class="remote-label label" ng-click="switchControlMode($event)" ng-class="{selected: isRemoteControlMode()}"><i class="fa fa-wifi"></i><span class="text">Remote</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="media-toolbar-streams-list" ng-show="showStreamList" ng-click="closeStreamListPopup()" ng-class="{mobile: isMobile}">
+  <div class="streams-list-container">
+    <div class="streams-list">
+      <div class="streams-list-header">
+        <h2>Zones</h2>
+        <div class="streams-list-header-user">{{me.user.username}}</div>
+      </div>
+      <div class="streams-container">
+        <ul>
+          <li ng-repeat="stream in streams" ng-click="selectStream(stream)" ng-class="{selected: stream.streamid == selectedStream.streamid}">
+            <i class="fa {{stream.deviceicon}}"></i><div>{{stream.streamname}}</div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="streams-arrow"></div>
+  </div>
+</div>
+
+<div class="more-info-container" ng-show="showMoreInfo" ng-mouseover="openMoreInfo($event,false)" ng-mouseleave="closeMoreInfo()" ng-style="moreInfoPopupLeft">
+  <div class="more-info-details">
+    <h2>Current Selection</h2>
+    <ul>
+      <li ng-if="mediaInfo.music_type == 'playlist'"><i class="fa fa-music station-icon"></i> {{mediaInfo.music_selection}}</li>
+      <li ng-if="mediaInfo.music_type == 'dayparting'"><i class="fa fa-calendar daypart-icon"></i> {{mediaInfo.music_selection}}</li>
+      <li ng-if="mediaInfo.music_type == 'mix'"><i class="fa fa-random mix-icon"></i> {{mediaInfo.music_selection}}</li>
+      <li ng-if="mediaInfo.preset_name"><i class="fa fa-microphone preset-icon"></i> {{mediaInfo.preset_name}}</li>
+      <li ng-if="mediaInfo.schedule_name"><i class="fa fa-calendar schedule-icon"></i> {{mediaInfo.schedule_name}}</li>
+    </ul>
+    <div class="info-text" ng-mouseenter="openMoreInfo($event, true)" ng-mouseout="closeMoreInfo($event)">
+      <table>
+        <tr>
+          <td class="icon"><i class="fa fa-volume-up"></i></td>
+          <td class="text">
+            <div class="media-name" title="{{mediaInfo.media_name}}">{{mediaInfo.media_name}}</div>
+            <div class="media-description" title="{{mediaInfo.artist}} | {{mediaInfo.media_station}}">
+              <span class="media-artist">{{mediaInfo.artist}} </span>
+              <span class="media-pipe" ng-if="mediaInfo.media_station">|</span>
+              <span class="media-station"> {{mediaInfo.media_station}}</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="more-info-arrow" ng-class="{'no-media-set': noMediaSet}"></div>
+</div>
+

@@ -1,0 +1,16 @@
+<div class="logout-container" ng-click='hideVolumeControl()'>
+  <div class="login-background"></div>
+	<div class="cloudanimation"></div>
+	<div class='logout-header-wrapper'>
+		<div class="logo"></div>
+	</div>
+  <div class='container' ui-view>
+
+  </div>
+
+  <a class="intercom-launcher intercom-booted" ng-class="{'intercom-open': intercomLauncherOpen, 'mobile-media-toolbar-open': mobileMediaToolbarOpen, mobile: isMobile}" href="mailto:{{intercomAppId}}@incoming.intercom.io">
+    <div class="intercom-icon-close"></div>
+    <div class="intercom-icon-open"></div>
+    <span class="intercom-unread-count"></span>
+  </a>
+</div>

@@ -1,0 +1,71 @@
+<div class="device-stream-modal modal-body" ng-keydown="handleEnterKey($event)">
+  <h2>{{modalOptions.headerText}}</h2>
+  <form name="deviceForm">
+    <div class="field-section row">
+
+      <div class="device-specific-info">
+        <label>Device</label>
+
+        <div class="device-details">
+          <div class="device-name">
+            {{modalOptions.name}}
+          </div>
+          <div class="device-id">
+            {{modalOptions.uuid}}
+          </div>
+        </div>
+      </div>
+
+      <div class="location-field">
+        <label>Location</label>
+        <div class="location-select select">
+          <div>
+            <ol class="nya-bs-select"
+              ng-model="modalModel.userid"
+              data-live-search="true"
+              ng-change="selectLocation(); checkButton()"
+              title="{{locationName}}"
+            >
+              <li nya-bs-option="option in locationOptions" data-value="option.userid">
+                <a>{{option.name}}</a>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="stream-field">
+        <label>Zone</label>
+        <div class="stream-select select" ng-class="{disabled: !enableLocationOptions}">
+          <div ng-if="!modalModel.stream">
+            <ol class="nya-bs-select"
+              ng-model="modalModel.streamid"
+              data-live-search="true"
+              ng-change="selectZone(); checkButton()"
+              title="{{streamName}}"
+            >
+              <li nya-bs-option="option in streamOptions" data-value="option.streamid">
+                <a>{{option.streamname}}</a>
+              </li>
+            </ol>
+          </div>
+          <div class="stream-select" ng-if="modalModel.stream">
+            <input type="text" ng-model="modalModel.stream" ng-disabled="modalModel.stream">
+          </div>
+        </div>
+      </div>
+      <div ng-if="warningMessage.length > 0" ng-bind-html="warningMessage" class="warning-message"></div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer button-bar">
+  <div class="right-side">
+    <button class="btn btn-primary okay"
+            ng-click="ok()"
+            ng-disabled="!buttonEnabled || deviceForm.$invalid"
+            ng-class="{disabled: !buttonEnabled || deviceForm.$invalid}"
+    >
+      {{modalOptions.actionButtonText}}
+    </button>
+    <button class="btn cancel" ng-click="cancel()">Cancel</button>
+  </div>
+</div>

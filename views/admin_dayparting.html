@@ -1,0 +1,82 @@
+<div class="row default-container dayparting-container">
+  <div class="col-sm-12">
+    <div class="admin-toolbar left-right header">
+      <div class="left-side empty"></div>
+      <div class="right-side">
+        <a class="btn btn-success" ng-click="changelocation('/admin/createpreset')"><i class="fa fa-plus"></i> Create Daypart</a>
+        <input ng-model="query" class="form-control filter" search-field ng-change="search()" placeholder="Search Dayparting">
+      </div>
+    </div>
+    <div class="default-block">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th class="sortable" ng-click="order('name')">
+              <h2>
+                <span tooltip="Sort by Dayparting" tooltip-placement="top"><i class="fa fa-calendar"></i>&nbsp;Dayparting</span>
+                <span class="glyphicon glyphicon-triangle-bottom" ng-show="orderBy === 'name'" ng-class="{ 'glyphicon-triangle-top': reverse }"></span>
+              </h2>
+            </th>
+            <th class="sortable" ng-click="order('isGlobal')" ng-if="entStatus.isEnterprise">
+              <span tooltip="Sort by Global" tooltip-placement="top">Global</span>
+              <span class="glyphicon glyphicon-triangle-bottom" ng-show="orderBy === 'isGlobal'" ng-class="{ 'glyphicon-triangle-top': reverse }"></span>
+            </th>
+            <th ng-if="!entStatus.isEnterprise">&nbsp;</th>
+            <th class="sortable text-center" ng-click="order('isActive')" ng-if="entStatus.isEnterprise">
+              <span tooltip="Sort by In Use" tooltip-placement="top">In Use</span>
+              <span class="glyphicon glyphicon-triangle-bottom" ng-show="orderBy === 'isActive'" ng-class="{ 'glyphicon-triangle-top': reverse }"></span>
+            </th>
+            <th ng-if="!entStatus.isEnterprise">&nbsp;</th>
+            <th>&nbsp;</th>
+            <th class="row-actions">
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr dir-paginate="preset in filteredPresets = (presets | itemsPerPage: pageSize)">
+            <td>
+              <div class="name">{{preset.name  | limitTo: 75}}</div>
+              <div ng-hide="me.user.userid == preset.userid" class="subname orange">Owner {{preset.username}}</div>
+            </td>
+            <td>
+              <span class="field2 light" ng-show="preset.isGlobal && subscription.remote">Global</span>
+            </td>
+            <td class="text-center" ng-if="entStatus.isEnterprise">
+              <span ng-if="preset.isActive == 1"><span class="useractive">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+              <span ng-if="preset.isActive != 1"><span class="userinactive">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+            </td>
+            <td ng-if="!entStatus.isEnterprise"></td>
+            <td class="text-right">
+              <span ng-hide='userPerms.isMusicAdmin || me.user.userid == preset.userid' class='light'>Account Managed</span>
+            </td>
+            <td class="text-right">
+              <a ng-show='userPerms.isMusicAdmin || me.user.userid == preset.userid' ng-click="changelocation('/admin/dayparting/' + preset.daypartingid + '/edit')" class="btn btn-default action-button"><i class="fa fa-pencil"></i></a>
+              <a ng-show='userPerms.isMusicAdmin || me.user.userid == preset.userid' ng-click="removeDayparting(preset)" class="btn btn-default action-button"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+          <tr ng-hide="filteredPresets.length">
+            <td colspan="2">
+              <div class="default-row">
+                <div class="name"><strong>No results found <span ng-show="query.length > 0">for search term <em>{{query}}</em></span></strong></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-controls">
+      <div class="pull-right">
+        <div class="form-inline count-per-page">
+          Daypartings Per Page:
+          <select class="form-control" id="pageSize" ng-model="pageSize">
+            <option ng-value="50">50</option>
+            <option ng-value="100">100</option>
+            <option ng-value="300">300</option>
+          </select>
+        </div>
+      </div>
+      <dir-pagination-controls></dir-pagination-controls>
+    </div>
+  </div>
+</div>

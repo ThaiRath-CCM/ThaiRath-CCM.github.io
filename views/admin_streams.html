@@ -1,0 +1,413 @@
+<div class="row container streams-container" ng-click='hideVolumeControl()'>
+  <div class="table-list col-md-12">
+    <div class="streams">
+      <div class="admin-toolbar zone-row header left-right">
+        <div class="left-side multiselect-row zone-row">
+          <div class="mass-nav" ng-show="entStatus.isEnterprise">
+            <div class="select2 selectGroup1" ng-show="userPerms.canEditRegion">
+              <select ng-disabled="selectedStreams.length === 0"
+                      ng-model="selectedGroup"
+                      ng-change="changeGroup()"
+                      ng-options="i.groupid as i.name | limitTo : 300 for i in groups">
+                <option></option>
+              </select>
+            </div>
+            <div class="select2 selectMusic1" ng-show="userPerms.canSelectMusic">
+              <select ng-disabled="selectedStreams.length === 0"
+                      ng-model="selectedStation"
+                      ng-change="changeMusic()"
+                      ng-options="opt.name group by opt.type for opt in availableOptions track by opt.value">
+                <option></option>
+              </select>
+            </div>
+            <div class="select2 selectPreset1" ng-show="messageQuantityAllowedPerPreset && userPerms.canSelectMessages">
+              <select ng-disabled="selectedStreams.length === 0"
+                      ng-model="selectedPreset"
+                      ng-change="changeMessagePreset()"
+                      ng-options="i.presetid as i.name | limitTo : 50 for i in messagePresets">
+                <option></option>
+              </select>
+            </div>
+            <div class="select2 selectSchedule1" ng-show="messageQuantityAllowedPerPreset && userPerms.canSelectMessages">
+              <select ng-disabled="selectedStreams.length === 0"
+                      ng-model="selectedSchedule"
+                      ng-change="changeMessageSchedule()"
+                      ng-options="i.scheduleid as i.name | limitTo : 50 for i in messageSchedules">
+                <option></option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="right-side">
+          <span tooltip="{{tooltipText('Add Zone', stream)}}" tooltip-placement="bottom">
+            <a class="btn btn-success add-zone gtm-add-zone-dialog-open"
+             ng-click="showStreamDialog()"
+             ng-if="userPerms.isPaymentAdmin"
+             ng-class="{'standard disabled': !zonesAllowed}"
+            >
+              <i class="fa fa-plus"></i> Add Zone
+            </a>
+          </span>
+          <input ng-model="query" class="form-control filter" placeholder="Search Zones">
+        </div>
+      </div>
+      <div class="table-container stream-outer-container" ng-class="{'standard': !entStatus.isEnterprise}">
+        <div>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th class="toggle-all selection" ng-if="entStatus.isEnterprise && filteredUsers.length">
+                  <div class="header-cell">
+                    <span class="fa"
+                          ng-class="{ 'fa-check-circle': toggleAllSelected, 'fa-circle-thin': !toggleAllSelected }"
+                          ng-click="toggleAll($event)"
+                          tooltip="Select/Deselect All"
+                          tooltip-placement="top"
+                          tooltip-append-to-body="true"></span>
+                  </div>
+                </th>
+                <th class="sortable location-name" ng-click="order('username')" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'username'}">
+                    <span tooltip="Sort by Location" tooltip-placement="top">Location</span>
+                    <span class="fa " ng-if="orderBy === 'username'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable streamname" ng-click="order('streamname')" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'streamname'}">
+                    <span tooltip="Sort by Zone" tooltip-placement="top">Zone</span>
+                    <span class="fa " ng-if="orderBy === 'streamname'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable status" ng-click="order('active')" ng-if="entStatus.isEnterprise">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'active'}">
+                    <span tooltip="Sort by Status" tooltip-placement="top">Status</span>
+                    <span class="fa " ng-if="orderBy === 'active'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable song" ng-click="order('songInfo.name')" ng-if="entStatus.isEnterprise">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'songInfo.name'}">
+                    <span tooltip="Sort by Current Song" tooltip-placement="top">Current Song</span>
+                    <span class="fa " ng-if="orderBy === 'songInfo.name'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="active-streaming action control">
+                  <div class="header-cell">
+                    <span>Controls</span>
+                  </div>
+                </th>
+                <th class="sortable music" ng-click="order('musicInfo.name')" ng-if="entStatus.isEnterprise">
+                  <div class="header-cell">
+                    <span tooltip="Sort by Music Selection" tooltip-placement="top">Music</span>
+                    <span class="fa " ng-if="orderBy === 'musicInfo.name'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable message-preset" ng-click="order('messagePreset.name')" ng-if="entStatus.isEnterprise && messageQuantityAllowedPerPreset">
+                  <div class="header-cell">
+                    <span tooltip="Sort by Message Preset" tooltip-placement="top">Message Preset</span>
+                    <span class="fa " ng-if="orderBy === 'messagePreset.name'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable message-schedule" ng-click="order('messageSchedule.name')" ng-if="entStatus.isEnterprise && messageQuantityAllowedPerPreset">
+                  <div class="header-cell">
+                    <span tooltip="Sort by Message Selection" tooltip-placement="top">Message Schedule</span>
+                    <span class="fa " ng-if="orderBy === 'messageSchedule.name'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable device" ng-click="order('deviceName')" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'deviceName'}">
+                    <span tooltip="Sort by Device" tooltip-placement="top">Active Device</span>
+                    <span class="fa " ng-if="orderBy === 'deviceName'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable cloudbox-info" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="header-cell">
+                    <span>CloudBox Info</span>
+                  </div>
+                </th>
+                <th class="sortable region" ng-click="order('groupname')" ng-if="entStatus.isEnterprise">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'groupname'}">
+                    <span tooltip="Sort by Region" tooltip-placement="top">Region</span>
+                    <span class="fa " ng-if="orderBy === 'groupname'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="action autologin" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="header-cell">
+                    <span>Auto Login</span>
+                  </div>
+                </th>
+                <th class="action prefetch"
+                    ng-if="::isPrefetchEnabled"
+                    ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="header-cell">
+                    <span>Download</span>
+                  </div>
+                </th>
+                <th class="action ad-network" ng-if="me.allow_ad_network">
+                  <div class="header-cell">
+                    <span>Ad Network</span>
+                  </div>
+                </th>
+                <th class="action audio-link" ng-if="::me.account.allow_audio_ducking && entStatus.isEnterprise">
+                  <div class="header-cell">
+                    <span>Audio Ducking</span>
+                  </div>
+                </th>
+                <th class="active-streaming action remove" ng-if="entStatus.isEnterprise && userPerms.isPaymentAdmin">
+                  <div class="header-cell">
+                    <span>Remove</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-class="{ 'active' : selectedStreams.indexOf(stream.streamid) >= 0 }"
+                  dir-paginate="stream in filteredUsers = (streams | filter: search() | orderBy : [orderBy,orderBy2,orderBy3] : reverse | itemsPerPage: pageSize) track by stream.streamid"
+              >
+                <td class="check-box selection" ng-if="entStatus.isEnterprise" ng-click="changeChecked(stream.streamid, $event)" >
+                  <i class="fa" ng-class="{ 'fa-check-circle' : selectedStreams.indexOf(stream.streamid) >= 0, 'fa-circle-thin' : selectedStreams.indexOf(stream.streamid) < 0  }"></i>
+                </td>
+                <td class="note location-name" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="location-username" tooltip="{{stream.username}}" tooltip-placement="bottom">
+                    <span ng-if="stream.isAccountAdmin"><i class="fa fa-user"></i>&nbsp;&nbsp;</span>{{stream.username}}
+                  </div>
+                </td>
+                <td class="note streamname" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div class="streamname-name" tooltip="{{stream.streamname}}" tooltip-placement="bottom">
+                    <div class="streamname-edit" ng-if="!isEditing(stream)">
+                      <div class="streamname-edit-name">{{stream.streamname}}</div>
+                      <div class="streamname-edit-actions">
+                        <a href=""
+                         class="btn btn-default action-button"
+                         ng-click="editStream(stream)"
+                        >
+                          <i class="fa fa-pencil"></i>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="streamname-edit-actions" ng-class="{reveal: isEditing(stream)}" ng-if="isEditing(stream)">
+                      <div class="edit-field">
+                        <input ng-model="tempStreamname.value" ng-keyup="($event.keyCode == 13 && saveStreamEdit(stream)) || ($event.keyCode == 27 && cancelStreamEdit(stream))">
+                      </div>
+                      <div class="actions">
+                        <a class="btn action-button" title="Save" ng-click="saveStreamEdit(stream)"><i class="fa fa-check"></i></a>
+                        <a class="btn action-button" title="Cancel" ng-click="cancelStreamEdit(stream)"><i class="fa fa-times"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="note status" ng-if="entStatus.isEnterprise">
+                  <div class="status" ng-if="stream.active == 1">
+                    <i class="fa fa-circle"></i>
+                  </div>
+                </td>
+                <td class="note song" ng-if="entStatus.isEnterprise">
+                  <div ng-if="stream.active === 1 && songs[stream.streamid]">
+                    <div class="song-title" tooltip="{{stream.songInfo.name}}" tooltip-placement="bottom">{{stream.songInfo.name}}</div>
+                    <div class="song-artist" tooltip="{{stream.songInfo.artist}}" tooltip-placement="bottom">{{stream.songInfo.artist}}</div>
+                  </div>
+                </td>
+                <td class="actions control">
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Stream History', stream)}}">
+                    <a class="zone-stream-btn btn btn-default action-button"
+                     ng-class="{disabled: (!entStatus.isEnterprise && stream.userid !== me.user.userid) || userPerms.isPaymentAdminOnly}"
+                     ng-click="viewLocationStream(stream.streamid)"
+                    >
+                      <i class="fa fa-history"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Lower Volume', stream)}}">
+                    <a class="btn btn-default action-button volume-btn lower-volume"
+                     ng-class="{disabled:
+                                 (!entStatus.isEnterprise && stream.userid !== me.user.userid) ||
+                                 stream.active !== 1                                           ||
+                                 userPerms.isPaymentAdminOnly                                  ||
+                                 !canSetVolume(stream)
+                              }"
+                     ng-click='lowerVolume(stream)'
+                    >
+                      <i class="fa fa-volume-down"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Raise Volume', stream)}}">
+                    <a class="btn btn-default action-button volume-btn raise-volume"
+                     ng-class="{disabled:
+                                 (!entStatus.isEnterprise && stream.userid !== me.user.userid) ||
+                                 stream.active !== 1                                           ||
+                                 userPerms.isPaymentAdminOnly                                  ||
+                                 !canSetVolume(stream)
+                              }"
+                     ng-click='raiseVolume(stream)'
+                    >
+                      <i class="fa fa-volume-up"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Remove Song', stream)}}">
+                    <a class="btn btn-default action-button"
+                     ng-class="{disabled:
+                                 (!entStatus.isEnterprise && stream.userid !== me.user.userid) ||
+                                 stream.active !== 1                                           ||
+                                 stream.songInfo.mediaType === 'message'                       ||
+                                 !userPerms.canRemoveSong
+                              }"
+                     ng-click='removeSong(stream)'
+                    >
+                      <i class="fa fa-thumbs-down"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Pause', stream)}}">
+                    <a class="btn btn-default action-button"
+                     ng-class="{disabled: stream.active !== 1 || (!entStatus.isEnterprise && stream.userid !== me.user.userid) || !userPerms.canPause }"
+                     ng-click='pauseDevice(stream);'
+                    >
+                      <i class="fa fa-pause"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Play', stream)}}">
+                    <a class="btn btn-default action-button"
+                     ng-class="{disabled: stream.active !== 1 || (!entStatus.isEnterprise && stream.userid !== me.user.userid) || !userPerms.canPause }"
+                     ng-click='unpauseDevice(stream);'
+                    >
+                      <i class="fa fa-play"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Skip Song', stream)}}">
+                    <a class="btn btn-default action-button"
+                     ng-class="{disabled: stream.active !== 1 || (!entStatus.isEnterprise && stream.userid !== me.user.userid) || !userPerms.canSkip }"
+                     ng-click='skipDevice(stream, isLocalStream(stream));'
+                    >
+                      <i class="fa fa-step-forward"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{songs[stream.streamid].liked ? tooltipText('Unike Song', stream) : tooltipText('Like Song', stream)}}">
+                    <a class="btn action-button"
+                     ng-class="{
+                        disabled:
+                          (!entStatus.isEnterprise && stream.userid !== me.user.userid)
+                          || stream.active !== 1
+                          || stream.songInfo.mediaType === 'message',
+                        'btn-default': !songs[stream.streamid].liked,
+                        'btn-success': songs[stream.streamid].liked
+                      }"
+                     ng-click="toggleSongLike(stream)"
+                    >
+                      <i class="fa fa-thumbs-up"></i>
+                    </a>
+                  </span>
+                  <span tooltip-placement="bottom" tooltip="{{tooltipText('Refresh CloudBox', stream)}}">
+                    <a class="btn btn-default action-button"
+                      ng-class="{disabled: (!entStatus.isEnterprise && stream.userid !== me.user.userid) || userPerms.isPaymentAdminOnly || (stream.active && stream.devicetype === 'cloudbox') || !stream.hasCloudBox}"
+                      ng-click='refreshCloudBox(stream)'
+                    >
+                      <i class="fa fa-refresh"></i>
+                    </a>
+                  </span>
+                </td>
+                <td class="note music" ng-if="entStatus.isEnterprise">
+                  <div class="selection-station" tooltip="{{stream.musicInfo.name}}" tooltip-placement="bottom">
+                    {{stream.musicInfo.name ? stream.musicInfo.name : "No station selected"}}
+                  </div>
+                </td>
+                <td class="note message-preset" ng-if="entStatus.isEnterprise && messageQuantityAllowedPerPreset">
+                  <div ng-if="entStatus.isEnterprise">
+                    <div class="selection-preset" tooltip="{{stream.messagePreset.name}}" tooltip-placement="bottom">
+                      <span ng-if="stream.messagePreset.name"></span>{{stream.messagePreset.name}}
+                    </div>
+                  </div>
+                </td>
+                <td class="note message-schedule" ng-if="entStatus.isEnterprise && messageQuantityAllowedPerPreset">
+                  <div ng-if="entStatus.isEnterprise">
+                    <div class="selection-schedule" tooltip="{{stream.messageSchedule.name}}" tooltip-placement="bottom">
+                      <span ng-if="stream.schedule_id > 0">{{stream.messageSchedule.name}}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="note device" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div ng-if="stream.active == 1" tooltip="{{stream.deviceName + ' ' + stream.deviceAppversion}}" tooltip-placement="bottom">
+                    {{stream.deviceName}}
+                  </div>
+                </td>
+                <td class="note cloudbox-info" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div ng-if="stream.devicetype == 'cloudbox'">
+                    IP: {{stream.deviceIP}} <br>
+                    MAC: {{stream.deviceMAC}}
+                  </div>
+                </td>
+                <td class="note region" ng-if="entStatus.isEnterprise">
+                  <div ng-if="!stream.groupDefault" tooltip="{{stream.groupname}}" tooltip-placement="bottom">
+                    {{stream.groupname}}
+                  </div>
+                </td>
+                <td class="actions autologin" ng-class="{'standard': !entStatus.isEnterprise}">
+                  <div>
+                    <a href=""
+                     class="btn btn-default action-button"
+                     tooltip-placement="bottom"
+                     tooltip="Auto Login URL"
+                     ng-class="{disabled: (!entStatus.isEnterprise && stream.userid !== me.user.userid) || userPerms.isPaymentAdminOnly}"
+                     ng-click="showAutoLoginDialog(stream)"
+                    >
+                      <i class="fa fa-link"></i>
+                    </a>
+                  </div>
+                </td>
+                <td class="actions prefetch" ng-if="::isPrefetchEnabled">
+                  <a href=""
+                     class="btn btn-default action-button"
+                     ng-if="isStreamDeviceCloudBox(stream) && stream.isPrefetch"
+                     ng-click="requestDevicePrefetch(stream)"
+                     tooltip-placement="bottom"
+                     tooltip="Download Media"
+                  >
+                    <i class="fa fa-download"></i>
+                  </a>
+                </td>
+                <td class="actions ad-network" ng-if="me.allow_ad_network">
+                  <i class="fa" ng-class="{'fa-check-circle': stream.enable_ad_network, 'fa-times-circle-o': !stream.enable_ad_network}"></i>
+                </td>
+                <td class="actions audio-link" ng-if="::me.account.allow_audio_ducking && entStatus.isEnterprise">
+                  <div>
+                    <a href=""
+                     class="btn action-button"
+                     tooltip-placement="bottom"
+                     tooltip="Setup Audio Ducking"
+                     ng-if="isStreamDeviceCloudBox(stream)"
+                     ng-class="{ disabled: userPerms.isPaymentAdminOnly, 'btn-default': !stream.has_audio_links, 'btn-info': stream.has_audio_links }"
+                     ng-click="showStreamAudioLinkDialog(stream)"
+                    >
+                      <i class="fa fa-exchange"></i>
+                    </a>
+                  </div>
+                </td>
+                <td class="actions remove" ng-if="entStatus.isEnterprise && userPerms.isPaymentAdmin">
+                  <a href=""
+                     class="btn btn-default action-button"
+                     tooltip-placement="bottom"
+                     tooltip="Remove Zone"
+                     ng-click="removeStream(stream)"
+                     ng-class="{disabled: stream.streamCount < 2}"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr ng-if="!filteredUsers.length" class="filter-results">
+                <td colspan="6">
+                  <strong>No zones found <span ng-if="query.length > 0">for search term <em>{{query}}</em></span></strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pagination-controls" ng-show="filteredUsers.length">
+        <div class="selectedCount">
+          <div class="form-inline">
+            <span ng-if="selectedStreams.length">{{selectedStreams.length}} zone<span ng-show="selectedStreams.length != 1">s</span> selected</span>
+          </div>
+        </div>
+        <dir-pagination-controls max-size="5" on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>

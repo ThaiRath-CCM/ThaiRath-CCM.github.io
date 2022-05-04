@@ -1,0 +1,214 @@
+<div class="row default-container billing-upgrade">
+  <div class="col-md-12 billing-upgrade" ng-show="!hasSelectedPlan">
+    <div class="action-bar">
+      <div class="action-bar-title">
+        <a class="btn btn-default back-button" ng-click="clickBackButton()"><i class="fa fa-arrow-left"></i></a>
+      </div>
+    </div>
+    <h1 style="font-size:25px;">Change Your Subscription</h1>
+    <h2 class="current-plan">Current Plan:  {{currentPlan.name}} - ${{currentPlan.price | number: 2}} / {{currentPlan.billFrequency}}</h2>
+
+    <div class='headerOptions'>
+      <div class='pricingOptions'>
+        <div class='planOp monthly' ng-class="{selected: annualBilling === false}" ng-click="setUpgradeMonthlyBilling()">Billed Monthly</div>
+        <div class='planOp annual' ng-class="{selected: annualBilling === true}" ng-click="setUpgradeAnnualBilling()">Billed Annually</div>
+      </div>
+    </div>
+    <div class="planBreakdown">
+      <div class="planColumn music">
+        <div class="upperGap"></div>
+        <div class="plan music">
+          <div class="title">Music</div>
+          <div class="subtitle">Standard</div>
+          <div class="price">
+            <span class="dollarSign">$</span>
+            <span class="dollarAmount">{{plan.music.dollar}}</span>
+            <span class="changeAmount">{{plan.music.change}}</span>
+          </div>
+          <div class="billFrequency">Monthly</div>
+          <div class="buttonBar">
+            <a class="select" ng-click="selectPlan(plan.music)">Select</a>
+          </div>
+          <ul class="features">
+            <li>All Licenses Included</li>
+            <li>Clean Music</li>
+            <li>Commercial Free</li>
+            <li>Regular Station Updates</li>
+            <li>Music Mixing & Scheduling</li>
+          </ul>
+          <a class="moreInfo music" target="_learnMore" href="https://cloudcovermusic.com/in-store-business-music">Learn More</a>
+        </div>
+      </div>
+      <div class="planColumn manage">
+        <div class="upperGap">Best for Multi-Location</div>
+        <div class="plan manage">
+          <div class="title">Manage</div>
+          <div class="subtitle">Enterprise Standard</div>
+          <div class="price">
+            <span class="dollarSign">$</span>
+            <span class="dollarAmount">{{plan.manage.dollar}}</span>
+            <span class="changeAmount">{{plan.manage.change}}</span>
+          </div>
+          <div class="billFrequency">Monthly</div>
+          <div class="buttonBar">
+            <a class="select" ng-click="selectPlan(plan.manage)">Select</a>
+          </div>
+          <ul class="features">
+            <li class="otherFeatures">INCLUDES MUSIC</li>
+            <li>Centralized Control</li>
+            <li>Branding Control</li>
+            <li>Location Monitoring</li>
+            <li>Management Reporting</li>
+            <li>Zones</li>
+          </ul>
+          <a class="moreInfo manage" target="_learnMore" href="https://cloudcovermusic.com/business-music-control-multiple-locations-stores">Learn More</a>
+        </div>
+      </div>
+      <div class="planColumn messaging">
+        <div class="upperGap"></div>
+        <div class="plan messaging">
+          <div class="title">Messaging</div>
+          <div class="subtitle">Enterprise Professional</div>
+          <div class="price">
+            <span class="dollarSign">$</span>
+            <span class="dollarAmount">{{plan.messaging.dollar}}</span>
+            <span class="changeAmount">{{plan.messaging.change}}</span>
+          </div>
+          <div class="billFrequency">Monthly</div>
+          <div class="buttonBar">
+            <a class="select" ng-click="selectPlan(plan.messaging)">Select</a>
+          </div>
+          <ul class="features">
+            <li class="otherFeatures">INCLUDES MUSIC & MANAGE</li>
+            <li>Drive Impulse Sales</li>
+            <li>Upload Your Own Ads</li>
+            <li>Select Message Frequency</li>
+            <li>Message Production</li>
+            <li>Zones</li>
+          </ul>
+          <a class="moreInfo messaging" target="_learnMore" href="https://cloudcovermusic.com/business-in-store-on-hold-messaging">Learn More</a>
+        </div>
+      </div>
+    </div>
+    <div class="have-questions">
+      <div class="question">Have questions about pricing?</div>
+      <div class="phone-number"><a href="tel:1-844-422-6249">(844) 422-6249</a></div>
+    </div>
+  </div>
+  <div class="col-md-12 billing-upgrade" ng-show="hasSelectedPlan">
+    <div class="action-bar">
+      <div class="action-bar-title">
+        <a class="btn btn-default back-button" ng-click="deselectPlan()"><i class="fa fa-arrow-left"></i></a>
+      </div>
+    </div>
+    <h1 style="font-size:25px;">Change Your Subscription</h1>
+    <div class="current plan-details">
+      <h2>Current Plan</h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="plan">{{currentPlan.name}}</th>
+            <th class="price">Price</th>
+            <th class="locations">Quantity</th>
+            <th class="total">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="plan">Locations<small ng-if="currentPlan.annualDiscount"> &mdash; <span class="text-success">Annual Discount</span></small></td>
+            <td class="price">${{currentPlan.price | number: 2}} / {{currentPlan.billFrequency}}</td>
+            <td class="locations">{{subscription.quantity}}</td>
+            <td class="total">
+              ${{currentPlan.total | number: 2}} / {{currentPlan.billFrequency}}
+            </td>
+          </tr>
+          <tr ng-if="addonStreams">
+            <td class="plan">Additional Zones<small ng-if="currentPlan.annualDiscount"> &mdash; <span class="text-success">Annual Discount</span></small></td>
+            <td class="price">${{addonStreams.price | number: 2}} / {{currentPlan.billFrequency}}</td>
+            <td class="locations">{{addonStreams.quantity}}</td>
+            <td class="total">
+              ${{addonStreams.total | number: 2}} / {{currentPlan.billFrequency}}
+            </td>
+          </tr>
+          <tr class="totalWithAddons" ng-if="addonStreams">
+            <td class="empty"></td>
+            <td class="empty"></td>
+            <td class="empty"></td>
+            <td class="total">${{currentPlan.total + addonStreams.total | number: 2}} / {{currentPlan.billFrequency}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="selected plan-details">
+      <h2>Selected Plan</h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="plan">{{selectedPlan.name}}</th>
+            <th class="price">Price</th>
+            <th class="locations">Quantity</th>
+            <th class="total">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="plan">Locations<small ng-if="selectedPlan.isDiscount"> &mdash; <span class="text-success">Annual Discount</span></small></td>
+            <td class="price">$<span ng-show="!annualBilling">{{selectedPlan.monthlyPrice | number: 2}}</span><span ng-show="annualBilling">{{selectedPlan.annualPrice | number: 2}}</span> / {{selectedPlan.billFrequency}}</td>
+            <td class="locations">{{subscription.quantity}}</td>
+            <td class="total">
+              ${{selectedPlan.total | number: 2}} / {{selectedPlan.billFrequency}}
+            </td>
+          </tr>
+          <tr ng-if="addonStreams">
+            <td class="plan">Additional Zones<small ng-if="selectedPlan.isDiscount"> &mdash; <span class="text-success">Annual Discount</span></small></td>
+            <td class="price">${{selectedPlan.addonStreamPrice | number: 2}} / {{selectedPlan.billFrequency}}</td>
+            <td class="locations">{{addonStreams.quantity}}</td>
+            <td class="total">
+              ${{selectedPlan.addonStreamsTotal | number: 2}} / {{selectedPlan.billFrequency}}
+            </td>
+          </tr>
+          <tr class="totalWithAddons" ng-if="addonStreams">
+            <td class="empty"></td>
+            <td class="empty"></td>
+            <td class="empty"></td>
+            <td class="total">${{selectedPlan.total + selectedPlan.addonStreamsTotal | number: 2}} / {{selectedPlan.billFrequency}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="billing-info">
+      <p>
+        <span ng-show="subscription.state !== 'trial'">
+          You will receive a prorated charge or credit, which will reflect the difference in your plans for the remainder of your billing cycle.  Starting with your next billing cycle,
+        </span>
+        <span ng-show="subscription.state === 'trial'">
+          Upon subscription,
+        </span>
+        you will be billed at your selected plan's rate of
+        <span ng-show="!annualBilling"><strong>${{selectedPlan.monthlyPrice | number: 2}}</strong>.</span>
+        <span ng-show="annualBilling"><strong>${{selectedPlan.annualPrice | number: 2}}</strong>.</span>
+      </p>
+      <p>
+        No contracts, cancel at any time. If you cancel your subscription, your payment is non-refundable and your subscription will continue until the end of your billing cycle.
+      </p>
+      <span ng-show="(currentPlan.vendor_code === 'enterprise_professional' || currentPlan.vendor_code === 'annual_eprofessional_10disc') && (selectedPlan.vendor_code === 'enterprise_standard' || selectedPlan.vendor_code === 'annual_estandard_10disc')"><strong>Note:</strong> Downgrading to the Manage plan will disable all messaging for your locations and zones.</span>
+      <span ng-show="(currentPlan.vendor_code === 'enterprise_professional' || currentPlan.vendor_code === 'annual_eprofessional_10disc') && (selectedPlan.vendor_code === 'standard' || selectedPlan.vendor_code === 'annual_standard_10disc')"><strong>Note:</strong> Downgrading to the Music plan will disable company selections and all messaging for your locations and zones.</span>
+      <span ng-show="(currentPlan.vendor_code === 'enterprise_standard' || currentPlan.vendor_code === 'annual_estandard_10disc') && (selectedPlan.vendor_code === 'standard' || selectedPlan.vendor_code === 'annual_standard_10disc')"><strong>Note:</strong> Downgrading to the Music plan will disable company selections.</span>
+
+      <div ng-show="annualBilling && subscription.state !== 'trial'">
+        <h2>Pay by Check</h2>
+        <input type="checkbox" id="manual-bill" ng-model="manualCollection">
+        <label for="manual-bill" class="manual-bill">Select this box if you want to pay by check. You will receive an email invoice and have 14 days to provide payment.</label>
+      </div>
+    </div>
+    <div class='alert alert-info terms-agreement'>
+      <b>Terms Agreement</b><br>By agreeing to our <a href="https://media.cloudcovermusic.com/Cloud_Cover_Media_Terms_and_Conditions.pdf" target="_blank">Terms and Conditions</a>, you acknowledge that you are changing your subscription plan. This will result in a change in your subscription amount, your monthly charge or both.<br><br>
+      <div class="form-inline">
+        <label class="checkbox-inline alert-info">
+          <input type="checkbox" ng-model="agreement"><b>I Agree</b>
+        </label>
+      </div>
+    </div>
+    <a class="btn btn-success btn-lrg pull-left" ng-click="submitPlan()" ng-class="{disabled: !agreement}">Submit</a> <i class="fa fa-refresh fa-spin submit-spinner" ng-if="setSubmitSpinner"></i>
+  </div>
+</div>

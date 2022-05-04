@@ -1,0 +1,10 @@
+<div class='part-block'>
+    <b>{{part.name}}</b> <div class='btn btn-link btn-xs' id="day{{dayname}}index{{index}}_circle" ng-click="remove($event)"><i  class="fa fa-times-circle-o"> Remove</i></div>
+
+	<div class="settings">
+		<div id="day{{dayname}}index{{index}}"></div>
+		<div class='cuteLines'>
+			<div class='{{($index % 6) ? "small" : "big"}}' ng-repeat='line in timeArray'></div>
+		</div>
+	</div>
+</div>

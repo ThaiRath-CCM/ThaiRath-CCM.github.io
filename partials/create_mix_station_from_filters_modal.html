@@ -1,0 +1,129 @@
+<form name="form" novalidate ng-if="vm.form.currentStep === 1" ng-submit="vm.save(form)">
+  <div class="modal-body">
+    <h2 class="modal-title">Create Mix Station</h3>
+    <div class="form-container">
+      <div class="form-group mix-station-name-form-group" ng-class="{ 'has-error': form.name.$invalid && form.$submitted }">
+        <label class="control-label sr-only" for="mix-station-name">Mix Station Name</label>
+        <input class="form-control" id="mix-station-name" name="name" type="text" placeholder="My Mix Station Name" autocomplete="off" required autofocus
+               ng-model="vm.formData.name"
+               ng-model-options="{ allowInvalid: true, debounce: 500 }"
+               ng-minlength="4"
+               ng-maxlength="80"
+               ng-pattern="/^[\w\-'():\\/,@&#+<>.\s]+$/"
+               stationedit-unique="name">
+        <div class="help-block validation-error" ng-show="form.$submitted" ng-messages="form.name.$error">
+          <span ng-message="required">The mix station name is required.</span>
+          <span ng-message="minlength">The mix station name must be at least 4 characters.</span>
+          <span ng-message="maxlength">The mix station name cannot be greater than 80 characters.</span>
+          <span ng-message="pattern">The mix station name can only contain: spaces, commas, a-Z, 0-9, ., :, /, \, @, &amp;, _, -, (, ), #, +, &lt;, &gt;</span>
+          <span ng-message="unique">A mix station with the same name has already been created.</span>
+        </div>
+      </div>
+      <label class="checkbox-inline" ng-if="::vm.allowSetGlobal">
+        <input type="checkbox"
+               ng-model="vm.formData.isGlobal"
+               ng-true-value="1"
+               ng-false-value="0"> Global
+      </label>
+      <i class="fa fa-question-circle fa-push-left text-muted"
+         ng-if="::vm.allowSetGlobal"
+         tooltip="Allow all locations to select this mix station"
+         tooltip-placement="right"></i>
+    </div>
+    <ul class="list-style-none filters-list" ng-class="::{ 'has-wide-filter-name': vm.filters.business.length || vm.filters.rating.length }">
+      <li class="filter-category" ng-if="::vm.filters.genre.length">
+        <strong class="filter-category-name">Genre:</strong>
+        <p class="category-filters" ng-attr-title="{{::vm.filters.genre}}" ng-bind="::vm.filters.genre"></p>
+      </li>
+      <li class="filter-category" ng-if="::vm.filters.mood.length">
+        <strong class="filter-category-name">Mood:</strong>
+        <p class="category-filters" ng-attr-title="{{::vm.filters.mood}}" ng-bind="::vm.filters.mood"></p>
+      </li>
+      <li class="filter-category" ng-if="::vm.filters.business.length">
+        <strong class="filter-category-name">Business Type:</strong>
+        <p class="category-filters" ng-attr-title="{{::vm.filters.business}}" ng-bind="::vm.filters.business"></p>
+      </li>
+      <li class="filter-category" ng-if="::vm.filters.rating.length">
+        <strong class="filter-category-name">Content Ratings:</strong>
+        <p class="category-filters" ng-attr-title="{{::vm.filter.rating}}" ng-bind="::vm.filters.rating"></p>
+      </li>
+    </ul>
+    <h3>Filtered Stations (<span ng-bind="vm.formData.playlists.length"></span>)</h3>
+    <div class="row hidden-xs">
+      <div class="col-sm-3 rating-header">
+        <div class="filtered-station-list-header">
+          Rating
+        </div>
+      </div>
+      <div class="col-sm-3 weight-header">
+        <div class="filtered-station-list-header">Weight<i class="fa fa-question-circle fa-push-left" tooltip="Stations with higher weights (10) play more often, and lower weights (1) play less often. Stations with the same weight play equally often."></i></div>
+      </div>
+    </div>
+    <ul class="filtered-station-list">
+      <li class="filtered-station-item" ng-repeat="station in vm.formData.playlists track by station.playlistid">
+        <div class="row">
+          <div class="col-xs-8 col-sm-6 station-details-column">
+            <div class="station-container">
+              <div class="station-thumbnail" ng-style="::vm.buildStationArtStyle(station)"></div>
+              <div class="station-details">
+                <div class="station-name" ng-bind="::station.name"></div>
+                <div class="station-desc" ng-bind="::station.subname"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-2 col-sm-1">
+            <div class="rating">
+              <content-rating-icon rating-id="{{station.content_rating_id}}" show-tooltip="true" tooltip-append-to-body="true"></content-rating-icon>
+            </div>
+          </div>
+          <div class="col-sm-3 hidden-xs">
+            <div class="form-inline">
+              <select class="form-control input-sm"
+                      ng-model="vm.formData.playlists[$index].freq"
+                      ng-options="opt.value as opt.name for opt in ::vm.form.options.frequency"></select>
+            </div>
+          </div>
+          <div class="col-xs-2 col-sm-2 text-center">
+            <button class="btn btn-link btn-link-muted remove-station-btn" type="button" title="Remove Station"
+                    ng-if="vm.allowRemoveStation"
+                    ng-click="vm.removeStation($index)">
+              &times;
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary gtm-create-mix-dialog-save" type="submit" ng-disabled="vm.loading">
+      <span ng-hide="vm.loading">Save</span><span ng-show="vm.loading">Saving...</span>
+    </button>
+    <button class="btn btn-default" type="button"
+            ng-disabled="vm.loading"
+            ng-click="vm.cancel()">
+      Cancel
+    </button>
+  </div>
+</form>
+<form class="activate-form" name="activateForm" novalidate ng-if="vm.form.currentStep === 2" ng-submit="vm.activateMixStation('now')">
+  <div class="modal-body text-center">
+    <div class="activate-success">
+      <i class="fa fa-4x fa-check-circle animated zoom-in"></i>
+      <p>Your mix station <strong ng-bind="vm.formData.name"></strong> has been successfully created!</p>
+    </div>
+    <div class="activate-actions">
+      <p>Would you like to play this mix station?</p>
+      <div class="play-opts">
+        <button class="btn btn-primary" type="submit">
+          <i class="fa fa-play fa-push-right"></i>Play Now
+        </button>
+        <button class="btn btn-primary" type="button" ng-click="vm.activateMixStation('next')">
+          <i class="fa fa-clock-o fa-push-right"></i>Play Next
+        </button>
+      </div>
+      <button class="btn btn-link" type="button" ng-click="vm.skipMixStationActivation()">
+        Maybe Later
+      </button>
+    </div>
+  </div>
+</form>

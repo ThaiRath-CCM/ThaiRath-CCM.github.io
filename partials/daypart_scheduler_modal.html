@@ -1,0 +1,53 @@
+<div class="scheduler-popup modal-body">
+  <h2>{{modalOptions.headerText}}</h2>
+  <form class="daypart-edit-form">
+    <div class="station-selection">
+      <div class="station select-button" ng-click="selectDaypartType('playlist')" ng-class="{selected: modalOptions.daypartType == 'playlist'}">Stations</div>
+      <div class="mix-station select-button" ng-click="selectDaypartType('mix')" ng-class="{selected: modalOptions.daypartType == 'mix'}">Mix Stations</div>
+    </div>
+    <div class="row">
+      <ol ng-model="modalModel.station" title="{{stationTitle}}" class="playlist station nya-bs-select" ng-show="modalOptions.daypartType == 'playlist'" ng-change="selectDaypart('playlist')" data-live-search="true" ng-class="{disabled: stationDisabled}">
+        <li class="nya-bs-option" ng-repeat="station in modalOptions.stationList" data-value="{{station.id}}={{station.name}}" ng-class="{selected: modalModel.station == station.id+'='+station.name}" ng-selected="modalModel.station == station.id+'='+station.name">
+          <a class="station-name-anchor">
+            <div class="station-name-container">{{station.name}}
+              <div class="rating-container">
+                <content-rating-icon ng-repeat="rating in station.ratingList" rating-id="{{rating}}">
+              </div>
+            </div>
+          </a>
+        </li>
+      </ol>
+      <ol name="mix-station" class="station mix-station nya-bs-select" ng-model="modalModel.mixstation" ng-show="modalOptions.daypartType == 'mix'" ng-change="selectDaypart('mixstation')" title="{{mixStationTitle}}" data-live-search="true" ng-class="{disabled: mixStationDisabled}">
+        <li class="nya-bs-option" ng-repeat="mix in modalOptions.mixStationList" data-value="{{mix.id}}={{mix.name}}" ng-class="{selected: modalModel.mixstation == mix.id+'='+mix.name}" ng-selected="modalModel.mixstation == mix.id+'='+mix.name">
+          <a class="station-name-anchor">
+            <div class="station-name-container">{{mix.name}}
+              <div class="rating-container">
+                <content-rating-icon ng-repeat="rating in mix.ratingList" rating-id="{{rating}}">
+              </div>
+            </div>
+          </a>
+        </li>
+      </ol>
+    </div>
+    <div class="row">
+      <div class="left">
+        <label for="start-time">Start Time</label>
+        <select class="time start-time" id="start-time" name="start-time"
+                ng-model="modalModel.startTime"
+                ng-change="updateEndTimeList()"
+                ng-options="time.id as time.time for time in ::modalOptions.startTimeList"></select>
+      </div>
+      <div class="right">
+        <label for="end-time">End Time</label>
+        <select class="time end-time" id="end-time" name="end-time"
+                ng-disabled="endTimeListDisabled"
+                ng-model="modalModel.endTime"
+                ng-options="time.id as time.time for time in modalOptions.endTimeList"></select>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn submit btn-primary okay" ng-click="ok()" ng-keydown="handleEnterKey($event)" ng-disabled="!buttonEnabled">{{modalOptions.actionButtonText}}</button>
+  <button class="btn cancel" ng-click="cancel()">Cancel</button>
+</div>

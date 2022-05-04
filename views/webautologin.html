@@ -1,0 +1,15 @@
+<div class='account-header'>
+  <div class='container auto-login'>
+    <div class="account-header-content">
+      <div class="nav-no-collapse account-header-nav">
+          <div class="logo"></div>
+          <div ng-show="me.user.emailhash"></div>
+      </div>
+      <player class="player"
+        is-auto-login-activated="autoLogin.isActivated"
+        auto-login-data="autoLogin.data"></player>
+    </div>
+  </div>
+</div>
+<div modal class="modal"></div>
+<div volume-control></div>

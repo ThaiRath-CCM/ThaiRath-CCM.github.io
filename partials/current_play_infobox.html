@@ -1,0 +1,28 @@
+<div class="cover-art" ng-style="mediaInfo.heroImage" ng-mouseenter="openMoreInfo($event, true)" ng-mouseout="closeMoreInfo($event)"></div>
+<div class="info-text"  ng-if="!isMobile" ng-mouseenter="openMoreInfo($event, true)" ng-mouseout="closeMoreInfo($event)">
+  <div class="media-name" title="{{mediaInfo.media_name}}">{{mediaInfo.media_name}}</div>
+  <div class="media-description" title="{{mediaInfo.artist}} | {{mediaInfo.media_station}}">
+    <span class="media-artist">{{mediaInfo.artist}} </span>
+    <span class="media-pipe" ng-if="mediaInfo.media_station">|</span>
+    <span class="media-station"> {{mediaInfo.media_station}}</span>
+  </div>
+</div>
+<div class="info-text" ng-if="isMobile">
+  <div class="media-name">{{mediaInfo.media_name}}</div>
+  <div class="media-description">
+    <span class="media-artist">{{mediaInfo.artist}} </span>
+    <span class="media-pipe" ng-if="mediaInfo.media_station">|</span>
+    <span class="media-station"> {{mediaInfo.media_station}}</span>
+  </div>
+  <div class="music-selection-info">
+    <span class="media-station" ng-if="mediaInfo.music_type == 'playlist'"><i class="fa fa-music station-icon"></i> {{mediaInfo.music_selection}}</span>
+    <span class="media-station" ng-if="mediaInfo.music_type == 'dayparting'"><i class="fa fa-calendar daypart-icon"></i> {{mediaInfo.music_selection}}</span>
+    <span class="media-station" ng-if="mediaInfo.music_type == 'mix'"><i class="fa fa-random mix-icon"></i> {{mediaInfo.music_selection}}</span>
+  </div>
+  <div class="message-preset-info">
+    <span ng-if="mediaInfo.preset_name"><i class="fa fa-microphone preset-icon"></i> {{mediaInfo.preset_name}}</span>
+  </div>
+  <div class="message-schedule-info">
+    <span ng-if="mediaInfo.schedule_name"><i class="fa fa-calendar schedule-icon"></i> {{mediaInfo.schedule_name}}</span>
+  </div>
+</div>

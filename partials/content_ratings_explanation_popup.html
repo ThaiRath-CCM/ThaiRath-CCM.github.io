@@ -1,0 +1,14 @@
+<div class="content-ratings-explanation-popup modal-body" ng-class="{ mobile: isMobile }">
+  <div class="header-close-button" ng-click="$dismiss()">
+    <i class="fa fa-times-circle"></i>
+  </div>
+  <div class="content-ratings-explanation-content">
+    <h2>Content Ratings</h2>
+    <ul class="list-unstyled no-margin-bottom content-ratings-list">
+      <li ng-repeat="rating in ::vm.ratings">
+        <content-rating-icon rating-id="{{::rating.id}}"></content-rating-icon>
+        <p class="no-margin-top" ng-bind="::rating.description"></p>
+      </li>
+    </ul>
+  </div>
+</div>

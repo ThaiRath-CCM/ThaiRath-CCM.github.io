@@ -1,0 +1,512 @@
+<div class="logout-link" ng-show="trialExpired || subscriptionExpired" ng-class="{'no-payment': !userPerms.isPaymentAdmin}">
+  <a ng-click="changelocation('/logout')">Logout</a>
+</div>
+<div class="button-gap">
+<div class="close-button" ng-show="!trialExpired && (orderingBox || convertingTrial || updatingCard) && (formStep == 1)">
+  <i class="fa fa-times-circle" ng-click="closeBillingForm()"></i>
+</div>
+<div class="back-button" ng-show="formStep == 3">
+  <a ng-click="showScreen(1)">Back</a>
+</div>
+</div>
+<div class="form-step no-payment" ng-show=!userPerms.isPaymentAdmin>
+  <div class="form-header">
+    <div class="title">
+      <h1>We hope you have enjoyed your free trial!</h1>
+      <h2>Please log in as the Admin to subscribe to Cloud Cover Music.</h2>
+      <h2><a href="#" ng-click="openIntercom()">Contact us</a> if you have any questions.</h2>
+    </div>
+  </div>
+</div>
+<div class="form-step step1" ng-show="formStep == 1 && userPerms.isPaymentAdmin">
+  <div class="form-header">
+    <div class='title convertingTrial' ng-show="convertingTrial || trialExpired">
+      <h1>We hope you have enjoyed your free trial!</h1>
+      <h2>Need a couple more days? <a href="#" ng-click="openIntercom()">Contact us</a> for a trial extension.</h2>
+    </div>
+    <div class='title' ng-show="orderingBox || updatingCard">
+      <h1>Please provide your credit card information</h1>
+    </div>
+    <div class='title' ng-if="subscriptionExpired">
+      <h1>Welcome Back!</h1>
+      <h2>Please fill out the information below to reactivate your account.</h2>
+    </div>
+  </div>
+  <div class="billing-details-loading" ng-show="loading.subscription && (convertingTrial || subscriptionExpired || trialExpired)">
+    <h2>Subscription Information</h2>
+    <div class="billing-details-loading-content">Loading...</div>
+  </div>
+  <div class="selected-plan" ng-show="!loading.subscription && (convertingTrial || subscriptionExpired || trialExpired)">
+    <div class="left-column">
+      <div class="plan-title clearfix">
+        <span ng-bind="selectedPlan"></span>
+        <div class="change-plan">
+          <a ng-click="showScreen(3); resetFocus()">Change Plan</a>
+        </div>
+      </div>
+      <div class="plan-price-summary">
+        <div class="plan-price-summary-price">
+          <div class="plan-price-summary-plan">
+            {{planQuantity}} x {{planQuantity > 1 ? "Locations" : "Location"}} (${{planPrice | number: 2}}/{{planPeriod}})<small ng-if="::annualBilling"> &mdash; Annual Discount</small>
+          </div>
+          <div class="plan-price-summary-addon" ng-if="addonStreams">
+            {{addonStreams.quantity}} x Additional {{addonStreams.quantity > 1 ? "Zones" : "Zone"}} (${{addonStreams.price | number: 2}}/{{planPeriod}})<small ng-if="::annualBilling"> &mdash; Annual Discount</small>
+          </div>
+        </div>
+        <div class="plan-price-total">
+          ${{planTotalCost | number: 2}}
+        </div>
+      </div>
+      <div>
+        You can upgrade, downgrade, or cancel your subscription at any time.
+        If you cancel your subscription, your payment is non-refundable and your subscription will continue until the end of your billing cycle.
+      </div>
+      <span ng-if="coupon">Your coupons will be redeemed on your invoices as applicable.</span>
+    </div>
+    <div class="right-column">
+      <div class="coupon">
+        <label for="coupon-input"><i class="fa fa-tag"></i> Coupon code (optional)</label>
+        <input type="text" ng-model="formData.coupon" title="Coupon" class="coupon-input" ng-focus="resetFocus()" ng-change="updateCouponCode()" ng-model-options="{debounce:1000}">
+        <div class="coupon status" ng-if="coupon || coupon_error">
+          <span ng-show="coupon.discount_type" class="info">{{coupon.invoice_description}}</span>
+          <span ng-show="coupon_error" class="coupon-error">{{coupon_error}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form recurly-form">
+    <form>
+      <div class="billing-details-loading" ng-show="loading.payment">
+        <h2>Billing Information</h2>
+        <div class="billing-details-loading-content">Loading...</div>
+      </div>
+      <div ng-hide="loading.payment">
+        <div ng-show="!skipBillingUpdate" class="billing-info" ng-class="{cancelable: showBillingCancelBtn}">
+          <h2>Billing Information</h2>
+          <div class="row">
+            <div class="half group">
+              <label for="first-name">First Name</label>
+              <input id="first-name" type="text" title="First name" data-recurly="first_name" required
+                     ng-model="formData.firstName"
+                     ng-class="{hasValue: formData.firstName.length}"
+                     ng-change="setButtonState()"
+                     ng-focus="resetFocus()">
+            </div>
+            <div class="half group">
+              <label for="last-name">Last Name</label>
+              <input id="last-name" type="text" title="Last name" data-recurly="last_name" required
+                     ng-model="formData.lastName"
+                     ng-focus="resetFocus()"
+                     ng-class="{hasValue: formData.lastName.length}">
+            </div>
+          </div>
+          <div class="row">
+            <div class="half group">
+              <div class="group billing credit-card">
+                <label for="recurly-number">Credit Card Number</label>
+                <div id="recurly-number" title="Credit card number" required data-recurly="number" class="recurly"></div>
+              </div>
+            </div>
+            <div class="expiration-date">
+              <div class="group billing expiration-month">
+                <label for="recurly-month">Month (mm)</label>
+                <div id="recurly-month" required data-recurly="month" class="recurly"></div>
+              </div>
+              <div class="group billing expiration-year">
+                <label for="recurly-year">Year (yy)</label>
+                <div id="recurly-year" required data-recurly="year" class="recurly"></div>
+              </div>
+              <div class="group billing cvv">
+                <label for="recurly-cvv">CVV</label>
+                <div id="recurly-cvv" title="CVV" required data-recurly="cvv" class="recurly"></div>
+              </div>
+              <input type="hidden" name="recurly-token" data-recurly="token">
+            </div>
+          </div>
+          <div class="row">
+            <div class="half group">
+              <label for="billing-address">Street Address</label>
+              <input id="billing-address" type="text" autocomplete="street-address" title="Billing street address" data-recurly="address1" required
+                ng-model="formData.billingAddress"
+                ng-class="{hasValue: formData.billingAddress.length}"
+                ng-change="setButtonState()"
+                ng-focus="resetFocus()">
+            </div>
+            <div class="half group">
+              <label for="billing-city">City</label>
+              <input id="billing-city" type="text" autocomplete="address-level2" title="City" data-recurly="city" required
+                     ng-model="formData.billingCity"
+                     ng-class="{hasValue: formData.billingCity.length}"
+                     ng-change="setButtonState()"
+                     ng-focus="resetFocus()">
+            </div>
+          </div>
+          <div class="row state-zip-country">
+            <div class="half group zip-country">
+              <div class="group dropdown state billing">
+                <label for="billing-state">State/Province</label>
+                <select id="billing-state" autocomplete="address-level1" data-recurly="state" required
+                        ng-model="formData.billingState"
+                        ng-change="setButtonState()"
+                        ng-focus="resetFocus()">
+                  <option ng-repeat="state in statesProvinces" value="{{state.abbreviation}}">{{state.name}}</option>
+                </select>
+              </div>
+              <div class="group postal">
+                <label for="billing-postal">Zip/Postal</label>
+                <input id="billing-postal" type="text" autocomplete="postal-code" title="Zip or postal code" data-recurly="postal_code" required
+                       ng-model="formData.billingPostal"
+                       ng-class="{hasValue: formData.billingPostal.length, invalid: invalidBillingZip}"
+                       ng-change="setButtonState()"
+                       ng-focus="resetFocus()">
+              </div>
+            </div>
+            <div class="half group">
+              <div class="group dropdown country billing">
+                <label for="billing-country">Country</label>
+                <select id="billing-country" autocomplete="country-name" data-recurly="country" required
+                        ng-model="formData.billingCountry"
+                        ng-change="setButtonState()"
+                        ng-focus="resetFocus()">
+                  <option value="CA">Canada</option>
+                  <option value="US">United States</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row" ng-show="showBillingCancelBtn">
+            <a class="btn btn-cancel cancel-cc-update" ng-click="cancelCCUpdate()">Cancel Payment Changes</a>
+          </div>
+        </div>
+        <div ng-show="skipBillingUpdate" class="billing-info current-payment">
+          <h2>Current Payment Method</h2>
+          <div class="row">
+            <table>
+              <tr>
+                <td>Card Type: </td><td>{{subscription.paymentInfo.card_type}}</td>
+              </tr>
+              <tr>
+                <td>Number: </td><td>****-****-****-{{subscription.paymentInfo.last_four}}</td>
+              </tr>
+              <tr>
+                <td>Expiration Date: </td><td>{{subscription.paymentInfo.expiration}}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="row">
+            <table>
+              <tr>
+                <td>{{subscription.paymentInfo.first_name}} {{subscription.paymentInfo.last_name}}</td>
+              </tr>
+              <tr>
+                <td>{{subscription.paymentInfo.street}}</td>
+              </tr>
+              <tr>
+                <td>{{subscription.paymentInfo.city}}, {{subscription.paymentInfo.state}} {{subscription.paymentInfo.zipcode}}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="row balance" ng-if="(subscription.balance || subscription.is_overdue) && subscriptionExpired">
+            <table>
+              <tr ng-if="subscription.balance">
+                <td>
+                  <b>Outstanding Balance:</b> You have an outstanding balance of <b>${{subscription.balance/100 | number: 2}}</b> from your prior subscription. This charge will be applied when you reactivate.
+                </td>
+              </tr>
+              <tr ng-if="subscription.is_overdue">
+                <td>
+                  <b>Reactivation Fee:</b> Your account was previously closed due to non-payment. A <b>${{reactivationFee/100 | number: 2}}</b> reactivation fee will be applied when your reactivate.
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="row update-cc">
+            <a class="button btn-edit" ng-click="updateCCDetails()">Update</a>
+          </div>
+        </div>
+      </div>
+      <div ng-show="convertingTrial || subscriptionExpired || trialExpired" class="billing-info">
+        <h2 class="corporateAddress">Corporate Address</h2>
+        <div class="row">
+          <div class="half group">
+            <label for="trial-corporate-street-address">Street Address</label>
+            <input class="address" id="trial-corporate-street-address" autocomplete="street-address" type="text" title="Corporate street address" required
+                   ng-model="formData.corporateAddress"
+                   ng-class="{hasValue: formData.corporateAddress.length}"
+                   ng-focus="resetFocus()"
+                   ng-change="setButtonState();resetSameAsBilling()">
+          </div>
+          <div class="half group">
+            <label for="trial-corporate-city">City</label>
+            <input class="city" id="trial-corporate-city" autocomplete="address-level2" type="text" title="City" required
+                   ng-model="formData.corporateCity"
+                   ng-class="{hasValue: formData.corporateCity}"
+                   ng-focus="resetFocus()"
+                   ng-change="setButtonState(); resetSameAsBilling()">
+          </div>
+        </div>
+        <div class="row state-zip-country">
+          <div class="half group zip-country">
+            <div class="group dropdown state corporate">
+              <label for="trial-corporate-state">State/Province</label>
+              <select id="trial-corporate-state" autocomplete="address-level1" required
+                      ng-options="item.abbreviation as item.name for item in statesProvinces"
+                      ng-model="formData.corporateState"
+                      ng-change="setButtonState(); resetSameAsBilling()"
+                      ng-focus="resetFocus()">
+              </select>
+            </div>
+            <div class="group postal">
+              <label for="trial-corporate-zip">Zip/Postal</label>
+              <input class="postal" id="trial-corporate-zip" autocomplete="postal-code" type="text" title="Zip or postal code" required
+                     ng-model="formData.corporatePostal"
+                     ng-class="{hasValue: formData.corporatePostal.length}"
+                     ng-focus="resetFocus()"
+                     ng-change="setButtonState(); resetSameAsBilling()">
+            </div>
+          </div>
+          <div class="half group zip-country">
+            <div class="group dropdown country corporate">
+              <label for="trial-corporate-country">Country</label>
+              <select id="trial-corporate-country" autocomplete="country-name" required
+                      ng-model="formData.corporateCountry"
+                      ng-focus="resetFocus()"
+                      ng-change="setButtonState(); resetSameAsBilling()">
+                <option value="CA">Canada</option>
+                <option value="US">United States</option>
+              </select>
+            </div>
+            <div class="group dropdown timezone corporate">
+              <label for="trial-dayparting-timezone">Timezone for Dayparting</label>
+              <select class="form-control" id="trial-dayparting-timezone"
+                      ng-model="formData.timezone"
+                      ng-focus="resetFocus()"
+                      ng-change="setButtonState(); resetSameAsBilling()"
+                      ng-options="value for value in timezones">
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row button-container">
+        <div class="error" ng-if="displayErrorMessage">
+          {{errorMessage}}
+        </div>
+        <div class="message" ng-if="displayMessage">
+          {{message}}
+        </div>
+        <div class="total-charge" ng-if="(subscription.is_overdue || subscription.balance) && subscriptionExpired && !displayErrorMessage">
+          <b>Total Due: ${{totalCharge | number : 2}}</b>
+        </div>
+        <div class="button-bar">
+          <div class="secure-icons">
+            <div class="TrustWaveSeal">
+              <img id="trustwaveSealImage" src="https://sealserver.trustwave.com/seal_image.php?customerId=22679b99c8fb435f8871995b5dc8c25c&amp;size=105x54&amp;style=" border="0" style="cursor:pointer;" onclick="javascript:window.open('https://sealserver.trustwave.com/cert.php?customerId=22679b99c8fb435f8871995b5dc8c25c&amp;size=105x54&amp;style=', 'c_TW', 'location=no, toolbar=no, resizable=yes, scrollbars=yes, directories=no, status=no, width=615, height=720'); return false;" oncontextmenu="javascript:alert('Copying Prohibited by Law - Trusted Commerce is a Service Mark of TrustWave Holdings, Inc.'); return false;" alt="This site is protected by Trustwave's Trusted Commerce program" title="This site is protected by Trustwave's Trusted Commerce program">
+            </div>
+            <!-- (c) 2005, 2017. Authorize.Net is a registered trademark of CyberSource Corporation -->
+            <div class="AuthorizeNetSeal">
+              <style type="text/css">
+                div.AuthorizeNetSeal{text-align:center;margin:0;padding:0;width:90px;font:normal 9px arial,helvetica,san-serif;line-height:10px;}
+                div.AuthorizeNetSeal a{text-decoration:none;color:black;}
+                div.AuthorizeNetSeal a:visited{color:black;}
+                div.AuthorizeNetSeal a:active{color:black;}
+                div.AuthorizeNetSeal a:hover{text-decoration:underline;color:black;}
+                div.AuthorizeNetSeal a img{border:0px;margin:0px;text-decoration:none;}
+              </style>
+              <a href="https://verify.authorize.net/anetseal/?pid=c780bd72-7a48-4d1e-a72a-ac03261db362&amp;rurl=https%3A//tune.cloudcovermusic.com" onmouseover="window.status='http://www.authorize.net/'; return true;" onmouseout="window.status=''; return true;" onclick="window.open('https://verify.authorize.net/anetseal/?pid=c780bd72-7a48-4d1e-a72a-ac03261db362&amp;rurl=https%3A//tune.cloudcovermusic.com','AuthorizeNetVerification','width=600,height=430,dependent=yes,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,status=no,directories=no,location=yes'); return false;" target="_blank">
+                <img src="https://verify.authorize.net/anetseal/images/secure90x72.gif" width="90" height="72" border="0" alt="Authorize.Net Merchant - Click to Verify">
+              </a>
+            </div>
+          </div>
+          <div class="buttons">
+            <div class="loading" ng-show="formLoading">
+              <img id="loading-image" src="../images/loading.gif" alt="Loading..." />
+            </div>
+            <div class="button btn-success subscribe"
+                 ng-show="convertingTrial || subscriptionExpired || trialExpired"
+                 ng-click="enableSubscriptionButton && subscribe(); resetFocus()"
+                 ng-class="{disabled: !enableSubscriptionButton}"
+            >
+              <span ng-show="convertingTrial || trialExpired">Subscribe</span>
+              <span ng-show="subscriptionExpired">Reactivate</span>
+            </div>
+            <div class="button btn-success subscribe"
+                 ng-show="orderingBox"
+                 ng-click="enableSubscriptionButton && subscribe(); resetFocus()"
+                 ng-class="{disabled: !enableSubscriptionButton}"
+            >
+              Add Card
+            </div>
+            <div class="button btn-success subscribe"
+                 ng-show="updatingCard"
+                 ng-click="enableSubscriptionButton && subscribe(); resetFocus()"
+                 ng-class="{disabled: !enableSubscriptionButton}"
+            >
+              Update Card
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="form-step step2" ng-show="formStep == 2">
+  <div class="form-header">
+    <div class='title'>
+      <h1>Tell us more about your business</h1>
+    </div>
+  </div>
+  <div class="form">
+    <h2>Business &amp; Customer Type</h2>
+    <p>You'll receive new music announcements and feature training targeting your customers and industry.</p>
+    <div class="row">
+      <div class="half group dropdown">
+        <label for="business_type">Business Type</label>
+        <select id="business_type" ng-model="accountInfo.info_type_account" ng-change="accountInfoChange()" required>
+          <option ng-repeat="bisType in businessTypes" value="{{bisType}}">{{bisType}}</option>
+        </select>
+      </div>
+      <div class="half group dropdown">
+        <label for="customer_profile">Customer Profile</label>
+        <select id="customer_profile" ng-model="accountInfo.info_customer_profile" ng-change="accountInfoChange()" required>
+          <option ng-repeat="custProfile in customerProfiles" value="{{custProfile}}">{{custProfile}}</option>
+        </select>
+      </div>
+    </div>
+    <h2>Previous Music Service</h2>
+    <p>Sharing this helps our team customize your support experience. We'll also introduce you to the right cutting edge features.</p>
+    <div class="row">
+      <div class="half group dropdown">
+        <label for="previous_service">Previous Service</label>
+        <select id="previous_service" ng-model="accountInfo.info_previous_service" ng-change="accountInfoChange()" required>
+          <option ng-repeat="service in previousService" value="{{service}}">{{service}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="row button-container">
+      <div class="error" ng-show="displayErrorMessage">
+        {{errorMessage}}
+      </div>
+      <div class="message" ng-show="displayMessage">
+        {{message}}
+      </div>
+      <div class="button-bar">
+        <div class="buttons">
+          <div class="loading" ng-show="formLoading">
+            <img id="loading-image" src="../images/loading.gif" alt="Loading..." />
+          </div>
+          <a class="button enter-tune submit" ng-click="enterTune()" ng-class="{disabled: !enableEnterTuneButton}">Enter Tune</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="form-step step3" ng-show="formStep == 3">
+  <div class="form-header">
+    <div class='title'>
+      <h1>Change Plan</h1>
+      <span>
+        <b>Current plan:</b> {{selectedPlan}} (${{planPricePerMonth | number: 2}}/mo)
+      </span>
+    </div>
+    <div class='headerOptions'>
+      <div class='pricingOptions'>
+        <div class='planOp monthly' ng-class="{selected: annualBilling === false}" ng-click="setMonthlyBilling()">Billed Monthly</div>
+        <div class='planOp annual' ng-class="{selected: annualBilling === true}" ng-click="setAnnualBilling()">Billed Annually</div>
+      </div>
+    </div>
+  </div>
+  <div class="form">
+    <div class="planBreakdown">
+      <div class="planColumn music">
+        <div class="upperGap"></div>
+        <div class="plan music">
+          <div class="title">Music</div>
+          <div class="subtitle">Standard</div>
+          <div class="price">
+            <span class="dollarSign">$</span>
+            <span class="dollarAmount">{{plan.music.dollar}}</span>
+            <span class="changeAmount">{{plan.music.change}}</span>
+          </div>
+          <div class="billFrequency">Monthly</div>
+          <div class="buttonBar">
+            <a class="select" ng-click="selectPlan(plan.music)">Select</a>
+          </div>
+        </div>
+        <div class="button moreInfo music" ng-click="toggleInfo('music')">
+          <i class="fa fa-chevron-circle-right"></i>
+          <span>Learn More</span>
+        </div>
+        <div class="info" ng-show="showMusicInfo">
+          <ul class="features">
+            <li>All Licenses Included</li>
+            <li>Clean Music</li>
+            <li>Commercial Free</li>
+            <li>Regular Station Updates</li>
+            <li>Music Mixing & Scheduling</li>
+          </ul>
+        </div>
+      </div>
+      <div class="planColumn manage">
+        <div class="upperGap">Best for Multi-Location</div>
+        <div class="plan manage">
+          <div class="title">Manage</div>
+          <div class="subtitle">Enterprise Standard</div>
+          <div class="price">
+            <span class="dollarSign">$</span>
+            <span class="dollarAmount">{{plan.manage.dollar}}</span>
+            <span class="changeAmount">{{plan.manage.change}}</span>
+          </div>
+          <div class="billFrequency">Monthly</div>
+          <div class="buttonBar">
+            <a class="select" ng-click="selectPlan(plan.manage)">Select</a>
+          </div>
+        </div>
+        <div class="button moreInfo manage" ng-click="toggleInfo('manage')">
+          <i class="fa fa-chevron-circle-right"></i>
+          <span>Learn More</span>
+        </div>
+        <div class="info" ng-show="showManageInfo">
+          <ul class="features">
+            <li class="otherFeatures">INCLUDES MUSIC</li>
+            <li>Centralized Control</li>
+            <li>Branding Control</li>
+            <li>Location Monitoring</li>
+            <li>Management Reporting</li>
+            <li>Zones</li>
+          </ul>
+        </div>
+      </div>
+      <div class="planColumn messaging">
+        <div class="upperGap"></div>
+        <div class="plan messaging">
+          <div class="title">Messaging</div>
+          <div class="subtitle">Enterprise Professional</div>
+          <div class="price">
+            <span class="dollarSign">$</span>
+            <span class="dollarAmount">{{plan.messaging.dollar}}</span>
+            <span class="changeAmount">{{plan.messaging.change}}</span>
+          </div>
+          <div class="billFrequency">Monthly</div>
+          <div class="buttonBar">
+            <a class="select" ng-click="selectPlan(plan.messaging)">Select</a>
+          </div>
+        </div>
+        <div class="button moreInfo messaging" ng-click="toggleInfo('messaging')">
+          <i class="fa fa-chevron-circle-right"></i>
+          <span>Learn More</span>
+        </div>
+        <div class="info" ng-show="showMessagingInfo">
+          <ul class="features">
+            <li class="otherFeatures">INCLUDES MUSIC & MANAGE</li>
+            <li>Drive Impulse Sales</li>
+            <li>Upload Your Own Ads</li>
+            <li>Select Message Frequency</li>
+            <li>Message Production</li>
+            <li>Zones</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

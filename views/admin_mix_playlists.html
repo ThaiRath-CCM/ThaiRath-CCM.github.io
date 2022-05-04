@@ -1,0 +1,89 @@
+<div class="row default-container mixes-container">
+  <div class="col-sm-12">
+    <div class="admin-toolbar left-right header">
+      <div class="left-side empty"></div>
+      <div class="right-side">
+        <a class="btn btn-success" ui-sref="account.admin.createMixStation"><i class="fa fa-plus"></i> Create Mix Station</a>
+        <input ng-model="query" class="form-control filter" search-field ng-change="searchMixes()" placeholder="Search Mix Stations">
+      </div>
+    </div>
+    <div class="default-block">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th class="sortable" ng-click="order('name')">
+              <h2>
+                <span tooltip="Sort by Mix Station Name" tooltip-placement="top"><i class="fa fa-tasks"></i>&nbsp;Mix Stations</span>
+                <span class="glyphicon glyphicon-triangle-bottom" ng-show="orderBy === 'name'" ng-class="{ 'glyphicon-triangle-top': reverse }"></span>
+              </h2>
+            </th>
+            <th>Ratings</th>
+            <th class="sortable" ng-click="order('isGlobal')" ng-if="entStatus.isEnterprise">
+              <span tooltip="Sort by Global" tooltip-placement="top">Global</span>
+              <span class="glyphicon glyphicon-triangle-bottom" ng-show="orderBy === 'isGlobal'" ng-class="{ 'glyphicon-triangle-top': reverse }"></span>
+            </th>
+            <th ng-if="!entStatus.isEnterprise">&nbsp;</th>
+            <th class="sortable text-center user-is-active" ng-click="order('isActive')" ng-if="entStatus.isEnterprise">
+              <span tooltip="Sort by In Use" tooltip-placement="top">In Use</span>
+              <span class="glyphicon glyphicon-triangle-bottom" ng-show="orderBy === 'isActive'" ng-class="{ 'glyphicon-triangle-top': reverse }"></span>
+            </th>
+            <th ng-if="!entStatus.isEnterprise">&nbsp;</th>
+            <th>&nbsp;</th>
+            <th class="row-actions">
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr dir-paginate="mix in filteredMixes = (mixes | itemsPerPage: pageSize)">
+            <td>
+              <div class="name">{{mix.name}}</div>
+              <div ng-hide="me.user.userid == mix.userid" class="subname orange">Owner {{mix.username}}</div>
+            </td>
+            <td>
+              <content-rating-icon
+                ng-repeat="rating in mix.ratingList"
+                rating-id="{{rating}}"
+                show-tooltip="true"></content-rating-icon>
+            </td>
+            <td>
+              <span class="field2 light" ng-show="mix.isGlobal && subscription.remote">Global</span>
+            </td>
+            <td class="text-center user-is-active" ng-if="entStatus.isEnterprise">
+              <span ng-if="mix.isActive == 1"><span class="useractive">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+              <span ng-if="mix.isActive != 1"><span class="userinactive">&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+            </td>
+            <td ng-if="!entStatus.isEnterprise"></td>
+            <td class="text-right">
+              <span ng-hide='me.permissions.account.owner || me.permissions.account.music || me.user.userid == mix.userid' class='light'>Account Managed</span>
+            </td>
+            <td class="text-right row-actions">
+              <a ng-show="me.permissions.account.owner || me.permissions.account.music || me.user.userid == mix.userid" ui-sref="account.admin.editMixStation({ id: mix.mixid })" class="btn btn-default action-button"><i class="fa fa-pencil"></i></a>
+              <a ng-show="me.permissions.account.owner || me.permissions.account.music || me.user.userid == mix.userid" ng-click="removeMix(mix)" class="btn btn-default action-button"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+          <tr ng-hide="filteredMixes.length">
+            <td colspan="2">
+              <div class="default-row">
+                <div class="name"><strong>No results found <span ng-show="query.length > 0">for search term <em>{{query}}</em></span></strong></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-controls">
+      <div class="pull-right">
+        <div class="form-inline count-per-page">
+          Mix Stations Per Page:
+          <select class="form-control" id="pageSize" ng-model="pageSize">
+            <option ng-value="50">50</option>
+            <option ng-value="100">100</option>
+            <option ng-value="300">300</option>
+          </select>
+        </div>
+      </div>
+      <dir-pagination-controls></dir-pagination-controls>
+    </div>
+  </div>
+</div>

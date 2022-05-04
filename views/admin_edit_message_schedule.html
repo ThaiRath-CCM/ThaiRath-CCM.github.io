@@ -1,0 +1,140 @@
+<div class="container create_schedule_playlist message-schedule-container">
+  <div class="ccm-edit-screen-with-back-button message-schedule-edit-screen">
+    <ol class="breadcrumb" aria-label="breadcrumb">
+      <li>
+        <a class="back-button" ng-click="clickBackButton()">
+          <i class="fa fa-long-arrow-left fa-push-right"></i>Back to Message Schedules
+        </a>
+      </li>
+      <li class="pull-right">
+        <a href="https://help.cloudcovermusic.com/en/articles/1367960-how-to-create-a-scheduled-message" target="_blank" rel="noopener">
+          <span class="hidden-xs">How to: Create a Scheduled Message<i class="fa fa-external-link fa-push-left"></i></span>
+          <span class="visible-xs"><i class="fa fa-question-circle"></i></span>
+        </a>
+      </li>
+    </ol>
+    <form name="vm.formController" ng-submit="submit()" novalidate>
+      <div class="admin-toolbar left-right header visible-xs">
+        <div class="left-side empty"></div>
+        <div class="right-side">
+          <button class="btn btn-success" type="submit" ng-disabled="vm.isSaving">
+            <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Schedule'"></span>
+          </button>
+        </div>
+      </div>
+      <div class="edit-message-schedule-header">
+        <div class="row">
+          <div class="col-sm-6 col-md-12">
+            <h1 class="has-tooltip"><span><span ng-bind="::isEditing ? 'Edit' : 'Create'"></span> Message Schedule</span><i class="fa fa-question-circle" tooltip="Schedule messages to play at specific times." tooltip-placement="right"></i></h1>
+          </div>
+          <div class="col-sm-6 visible-sm text-right">
+            <button class="btn btn-success" type="submit" ng-disabled="vm.isSaving">
+              <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Schedule'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="edit-message-schedule-form-header">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-9 col-lg-7">
+                <div class="form-group" ng-class="{ 'has-error': (vm.formController.$submitted && vm.formController.scheduleName.$invalid) || vm.formController.scheduleName.$error.unique }">
+                  <input class="form-control schedule-name" name="scheduleName" type="text" placeholder="Message Schedule Name"  autocomplete="off" required
+                         ng-model="formData.name"
+                         ng-model-options="{ allowInvalid: true, debounce: 500 }"
+                         ng-change="changeForm()"
+                         ng-minlength="4"
+                         ng-maxlength="80"
+                         ng-pattern="/^[\w\-'():\\/,@&#+<>.\s]+$/"
+                         message-schedule-edit-unique="scheduleName">
+                  <span class="name-validation-pending" ng-show="vm.formController.$pending"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+                  <div class="help-block validation-error"
+                       ng-show="(vm.formController.$submitted && vm.formController.scheduleName.$invalid) || vm.formController.scheduleName.$error.unique"
+                       ng-messages="vm.formController.scheduleName.$error">
+                    <span ng-message="required">The Message Schedule name is required</span>
+                    <span ng-message="minlength">The Message Schedule name must be at least 4 characters</span>
+                    <span ng-message="maxlength">The Message Schedule name cannot be greater than 80 characters</span>
+                    <span ng-message="pattern">The Message Schedule name can only contain: space, comma, a-Z, 0-9, ., :, /, \, @, &amp;, _, -, (, ), #, +, &lt;, &gt;</span>
+                    <span ng-message="unique">A Message Schedule with the same name has already been created</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-lg-5">
+                <label class="checkbox-inline global-checkbox" ng-if="::allowSetGlobal">
+                  <input type="checkbox"
+                         ng-model="formData.isGlobal"
+                         ng-change="changeForm()"
+                         ng-true-value="1"
+                         ng-false-value="0">
+                    Global<i class="fa fa-question-circle"
+                             tooltip="Allow all locations to select this message schedule"
+                             tooltip-placement="top"
+                             tooltip-append-to-body="true"></i>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 hidden-xs hidden-sm text-right">
+            <button class="btn btn-success" type="submit" ng-disabled="vm.isSaving">
+              <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Schedule'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row message-toolbar-2">
+        <div class="col-xs-12 col-md-6 col-lg-6 pull-left">
+          <a ng-click="addMessage()" class="btn btn-success add-button align-left">Add<span class="long-text"> Message</span></a>
+          <a class="toolbtn view-selector-btn list-view align-left" ng-click="agendaView()" ng-class="{selected: !showCalendarView}">
+            <i class="fa fa-list"></i>
+          </a>
+          <a class="toolbtn view-selector-btn calendar-view align-left" ng-click="calendarView()" ng-class="{selected: showCalendarView}">
+            <i class="fa fa-calendar"></i>
+          </a>
+          <a class="toolbtn zoom-btn zoom-out" ng-click="zoomOut()" ng-show="showCalendarView">
+            <i class="fa fa-search-minus"></i>
+          </a>
+          <a class="toolbtn zoom-btn zoom-in" ng-click="zoomIn()" ng-show="showCalendarView">
+            <i class="fa fa-search-plus"></i>
+          </a>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-6 pull-right text-right">
+          <a class="toolbtn week-selection-btn previous" ng-click="previousWeek()">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+          <a class="toolbtn week-selection-btn today" ng-click="thisWeek()">
+            Today
+          </a>
+          <a class="toolbtn week-selection-btn next" ng-click="nextWeek()">
+            <i class="fa fa-chevron-right"></i>
+          </a>
+          <select class="week-selector"
+                  ng-model="currentWeek"
+                  ng-change="selectWeek()">
+            <option ng-repeat="week in ::weekList track by $index"
+                    ng-value="$index"
+                    ng-selected="$index === currentWeek"
+                    ng-bind="::week.label"></option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <div class="row main-content">
+      <div class="col-xs-12 col-md-12 col-lg-12">
+        <div class="scheduler-container" ng-class="setSchedulerClass()" ng-show="showCalendarView">
+          <message-scheduler-calendar class="scheduler" schedule_id="scheduleId" slots="slots" zoom="scheduleZoom" ng-if="eventsHaveLoaded()"></message-scheduler-calendar>
+        </div>
+        <div class="agenda-container" ng-class="setAgendaClass()" ng-show="!showCalendarView">
+          <message-scheduler-agenda class="agenda" ng-if="eventsHaveLoaded()"></message-scheduler-agenda>
+        </div>
+      </div>
+    </div>
+    <div class="text-center visible-xs visible-sm">
+      <button class="btn btn-success mobile-submit-btn" type="button"
+              ng-disabled="vm.isSaving"
+              ng-click="onMobileFormSubmission()">
+        <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Schedule'"></span>
+      </button>
+    </div>
+  </div>
+</div>

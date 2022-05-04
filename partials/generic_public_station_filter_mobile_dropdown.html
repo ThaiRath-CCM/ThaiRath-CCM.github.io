@@ -1,0 +1,17 @@
+<div class="generic-public-station-filter-mobile-dropdown {{category}}">
+  <button class="filter-category btn btn-sm btn-default dropdown-toggle" ng-click="collapseAllToggleCategory({filterType: category})">
+    <i class="fa {{icon}}"></i> {{title}}
+    <i class="right fa-caret-down fa"></i>
+  </button>
+  <div class="sub-category dropdown-menu" ng-class="{collapsed: playlistStationFilter.menuOpen[category] === false}">
+    <ul class="menu-list">
+      <li ng-repeat="item in musicFilterList[category] | filter: { popular: true }" class="menu-list-item {{item.name}}" ng-click="toggleFilter({filterType: category, filterId: item.id})">
+        <i class="fa" ng-class="checkFilter({filterType: category, filterId: item.id}) ? 'fa-check-square-o' : 'fa-square-o'"></i> {{item.name}}
+      </li>
+      <li role="separator" class="divider"></li>
+      <li ng-repeat="item in musicFilterList[category] | filter: { popular: false }" class="menu-list-item {{item.name}}" ng-click="toggleFilter({filterType: category, filterId: item.id})">
+        <i class="fa" ng-class="checkFilter({filterType: category, filterId: item.id}) ? 'fa-check-square-o' : 'fa-square-o'"></i> {{item.name}}
+      </li>
+    </ul>
+  </div>
+</div>

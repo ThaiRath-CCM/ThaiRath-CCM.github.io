@@ -1,0 +1,79 @@
+<div class="row default-container removed-container">
+  <div class="col-md-12">
+    <div class="default-block">
+      <div class="pull-right" ng-show="isEnterprise">
+        <input ng-model="query" class="form-control filter" search-field placeholder="Search Removed Songs">
+      </div>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>
+              <h2><i class="fa fa-thumbs-down"></i>&nbsp;Removed Songs</h2>
+            </th>
+            <th class="row-actions">
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="song-row animate-leave" dir-paginate="song in filteredRemoved = (removed | filter: search() | itemsPerPage: pageSize)">
+            <td colspan="2">
+              <div class="song">
+                <div class="art" ng-style="::{'background-image': 'url(' + song.thumbUrl + ')'}"></div>
+                <div class="metadata">
+                  <span class="title">{{song.name}}</span>
+                  <span class="albumartist">{{song.artist_name}}</span>
+                  <span class="username">Removed by: {{song.removedBy}}</span>
+                </div>
+                <div class="actions">
+                  <div class="global">
+                    <span ng-show="entStatus.isEnterprise && song.isGlobal">Removed from all locations</span>
+                    <a class="btn btn-xs btn-default actions-remove-all"
+                       ng-show="entStatus.isEnterprise && !song.isGlobal && (me.permissions.account.owner || me.permissions.account.music)"
+                       ng-click="applyToAccount($index, song)"
+                    >
+                      Remove from all locations
+                    </a>
+                  </div>
+                  <div class="actions-restore">
+                    <a class="btn btn-xs btn-default"
+                       ng-show="!song.isGlobal &&
+                                (!entStatus.isEnterprise || (entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music || me.permissions.user.can_downvote)))"
+                       ng-click="restore(song, $index)"
+                    >
+                      Restore for {{song.username}}
+                    </a>
+                    <a class="btn btn-xs btn-default actions-restore-all"
+                       ng-show="song.isGlobal && (!entStatus.isEnterprise || (entStatus.isEnterprise && (me.permissions.account.owner || me.permissions.account.music)))"
+                       ng-click="restore(song, $index)"
+                    >
+                      Restore to all locations
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr ng-hide="filteredRemoved.length">
+            <td colspan="2">
+              <strong>No results found <span ng-show="query.length > 0">for search term <em>{{query}}</em></span></strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-controls">
+      <div class="pull-right">
+        <div class="form-inline count-per-page">
+          Removed Songs Per Page:
+          <select class="form-control" id="pageSize" ng-model="pageSize">
+            <option ng-value="50">50</option>
+            <option ng-value="100">100</option>
+            <option ng-value="300">300</option>
+          </select>
+        </div>
+      </div>
+      <dir-pagination-controls></dir-pagination-controls>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<div class="row default-container messages-container message-library">
+  <div class="admin-toolbar left-right">
+    <div class="left-side">
+      <a class="btn btn-default request-btn" ng-if="isPaymentAdmin" ui-sref="account.admin.request_message" title="Request a message from our professional studio."><span class="request-label"> Request Production</span></a>
+      <a class="btn btn-default help-button" target="_blank" href="https://help.cloudcovermusic.com/targeted-in-store-messaging/upload-your-own-custom-messages"><i class="fa fa-question"></i><span class="help-label"></span></a>
+    </div>
+    <div class="right-side">
+      <a class="btn btn-success upload-btn" ng-click="uploadMessage()" ng-show="me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages"><i class="fa fa-cloud-upload"></i><span class="upload-label"> Upload</span></a>
+      <input ng-model="search" class="form-control filter search-field" search-field ng-change="searchMessages()" placeholder="Search Title">
+    </div>
+  </div>
+  <div class="table-container messages-outer-container">
+    <div class="default-block">
+      <table class="">
+        <thead>
+          <tr>
+            <th class="play-control"></th>
+            <th class="name sortable" ng-click="order('message_name')">Title <i ng-if="orderBy == 'message_name'" class="fa fa-arrow-{{sortDirection}}"></i></th>
+            <th ng-show="!isMobile" class="date-added sortable" ng-click="order('created_at')">Date Uploaded <i ng-if="orderBy == 'created_at'" class="fa fa-arrow-{{sortDirection}}"></i></th>
+            <th ng-show="!isMobile" class="username sortable" ng-click="order('username')">Uploaded By <i ng-if="orderBy == 'username'" class="fa fa-arrow-{{sortDirection}}"></i></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="list-view-row" dir-paginate="message in filteredMessages = (messages | itemsPerPage: pageSize)">
+            <td class="play-control" ng-click="playMessage($event, message)">
+              <i class="pause-icon fa fa-pause" ng-show="messagePlaying == message.message_uuid"></i>
+              <i class="play-icon fa fa-play" ng-show="messagePlaying != message.message_uuid"></i>
+            </td>
+            <td class="message_name" ng-click="playMessage($event, message, true)">
+              <span ng-show="!isEditing(message)">
+                {{message.message_name}}
+              </span>
+              <input class="title-edit-input" ng-show="isEditing(message)" ng-focus="isEditing(message)" ng-model="messageName.value" ng-keyup="($event.keyCode == 13 && saveMessage(message)) || ($event.keyCode == 27 && cancelMessage(message))">
+            </td>
+            <td class="created_at" ng-show="!isMobile" ng-click="playMessage($event, message)">
+              {{message.created_at | date:'MM/dd/yyyy hh:mm a'}}
+            </td>
+            <td class="username" ng-show="!isMobile" ng-click="playMessage($event, message)">
+              {{message.username}}
+            </td>
+            <td ng-show="!isMobile" class="actions">
+              <div ng-show="!isEditing(message)" class="message-actions">
+                <a ng-show='me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages' ng-click="editMessage(message)" class="btn action-button" title="Edit Message"><i class="fa fa-pencil"></i></a>
+                <a ng-show='me.permissions.account.owner || me.permissions.account.messages || me.permissions.user.manage_messages' ng-click="removeMessage(message)" class="btn action-button" title="{{deleteTitle(message)}}" ng-class="{noop: !canDelete(message)}"><i class="fa fa-trash"></i></a>
+              </div>
+              <div ng-show="isEditing(message)" class="message-actions">
+                <a class="btn action-button" title="Save" ng-click="saveMessage(message)"><i class="fa fa-check"></i></a>
+                <a class="btn action-button" title="Cancel" ng-click="cancelMessage(message)"><i class="fa fa-times"></i></a>
+              </div>
+            </td>
+          </tr>
+          <tr ng-hide="filteredMessages.length">
+            <td colspan="3">
+              <span ng-show="query.length < 1"><strong>Click on <em>Request Message </em> to add a message</strong></span>
+              <span ng-show="query.length > 0"><strong>No results found for search term <em>{{query}}</em></strong></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-controls">
+      <div class="pull-right">
+        <div class="form-inline count-per-page">
+          Messages Per Page:
+          <select class="form-control" id="pageSize" ng-model="pageSize">
+            <option ng-value="50">50</option>
+            <option ng-value="100">100</option>
+            <option ng-value="300">300</option>
+          </select>
+        </div>
+      </div>
+      <dir-pagination-controls></dir-pagination-controls>
+    </div>
+  </div>
+</div>

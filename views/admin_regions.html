@@ -1,0 +1,176 @@
+<div class="row default-container region-container">
+  <div class="col-md-12">
+    <div class="regions">
+      <div class="regions-general-info">
+        <p>
+          Regions are useful to select music and messages that are catered to a specific group of Zones.
+          Once the region has been created, any number of Zones can be set for a Region.
+          For more detail <a target="help" href="https://help.cloudcovermusic.com/using-tune-for-music-manage-and-messaging/manage/how-to-add-and-use-regions/">see this help article<i class="fa fa-external-link fa-push-left"></i></a>.
+        </p>
+        <ul>
+          <li>Add a Region (below), select the Music and Messages for that region</li>
+          <li>From the <a ui-sref="account.admin.streams">Zones page</a>, select the Zone(s), then select the Region to apply to the Zone(s)</li>
+        </ul>
+      </div>
+      <div class="admin-toolbar header left-right">
+        <div class="left-side multiselect-row">
+          <div class="mass-nav">
+            <div class="select2 selectMusic1" ng-show="userPerms.canSelectMusic">
+              <select ng-disabled="selectedLocations.length === 0"
+                      ng-model="selectedStation"
+                      ng-change="changeMusic()"
+                      ng-options="opt.name group by opt.type for opt in availableOptions track by opt.value">
+                <option></option>
+              </select>
+            </div>
+            <div class="select2 selectPreset1" ng-show="messageQuantityAllowedPerPreset && userPerms.isMessageAdmin">
+              <select ng-disabled="selectedLocations.length === 0"
+                      ng-model="selectedPreset"
+                      ng-change="changeMessagePreset()"
+                      ng-options="i.presetid as i.name | limitTo : 50 for i in messagePresets">
+                <option></option>
+              </select>
+            </div>
+            <div class="select2 selectSchedule1" ng-show="messageQuantityAllowedPerPreset && userPerms.isMessageAdmin">
+              <select ng-disabled="selectedLocations.length === 0"
+                      ng-model="selectedSchedule"
+                      ng-change="changeMessageSchedule()"
+                      ng-options="i.scheduleid as i.name | limitTo : 50 for i in messageSchedules">
+                <option></option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="right-side">
+          <span tooltip="{{tooltipText('Add Region')}}" tooltip-placement="bottom">
+            <a class="btn btn-success"
+               ng-if="userPerms.canEditRegion"
+               ng-class="{'disabled': isAddingGroup}"
+               ng-click="addGroup()"
+            >
+              <i class="fa fa-plus"></i> Add Region
+            </a>
+          </span>
+          <input ng-model="query" class="form-control filter" placeholder="Search Regions">
+        </div>
+      </div>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th ng-show="filteredGroups.length" class="toggle-all">
+              <div class="header-cell">
+                <span class="fa"
+                      ng-click="!isAddingGroup && toggleAll($event)"
+                      ng-class="{'fa-check-circle': toggleAllSelected,
+                                 'fa-circle-thin': !toggleAllSelected,
+                                 'disabled': isAddingGroup}"
+                      tooltip="Select/Deselect All"
+                      tooltip-placement="top">
+                </span>
+              </div>
+            </th>
+            <th>Region</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr dir-paginate="group in filteredGroups = (groups | filter: search() | orderBy: orderBy | itemsPerPage: pageSize)" ng-class="{ 'active' : selectedLocations.indexOf(group.groupid) >= 0 }">
+            <td ng-click="!isAddingGroup && changeChecked(group.groupid, $event)">
+              <span class="fa"
+                    ng-class="{'fa-check-circle' : selectedLocations.indexOf(group.groupid) >= 0,
+                               'fa-circle-thin' : selectedLocations.indexOf(group.groupid) < 0,
+                               'disabled': isAddingGroup}">
+              </span>
+            </td>
+            <td class="region-name">
+              <span ng-show="!isEditing(group)">
+                {{group.name}}
+              </span>
+              <input class="title-edit-input"
+                     ng-show="isEditing(group)"
+                     ng-focus="isEditing(group)"
+                     ng-model="editingGroup.name"
+                     ng-keyup="($event.keyCode === 13 && saveGroup(group)) || ($event.keyCode === 27 && cancelGroup(group))"
+              >
+            </td>
+            <td class="note">
+              <div>
+                Default Station:
+                <span class="region-data" ng-show="group.music_id">{{group.musicName}}</span>
+                <span class="region-data" ng-show="!group.music_id">Not Selected</span>
+              </div>
+              <div ng-if="messageQuantityAllowedPerPreset && userPerms.isMessageAdmin">
+                Default Message Preset:
+                <span class="region-data" ng-show="group.message_preset">{{group.messagePreset}}</span>
+                <span class="region-data" ng-show="!group.message_preset">Not Selected</span>
+              </div>
+              <div ng-if="messageQuantityAllowedPerPreset && userPerms.isMessageAdmin">
+                Default Message Schedule:
+                <span class="region-data" ng-show="group.schedule_id">{{group.messageSchedule}}</span>
+                <span class="region-data" ng-show="!group.schedule_id">Not Selected</span>
+              </div>
+            </td>
+            <td class="row-actions">
+              <div ng-show="!isEditing(group)">
+                <a class="btn btn-default action-button"
+                   tooltip-placement="bottom"
+                   tooltip="Edit Region"
+                   ng-class="{disabled: isAddingGroup}"
+                   ng-if="userPerms.canEditRegion"
+                   ng-click="editGroup(group)"
+                >
+                  <i class="fa fa-pencil"></i>
+                </a>
+                <a class="btn btn-default action-button"
+                   tooltip-placement="bottom"
+                   tooltip="Remove Region"
+                   ng-class="{disabled: isAddingGroup}"
+                   ng-if="userPerms.canEditRegion"
+                   ng-click="removeGroup(group)"
+                >
+                  <i class="fa fa-trash"></i>
+                </a>
+              </div>
+              <div ng-show="isEditing(group)">
+                <a class="btn btn-default action-button"
+                   tooltip-placement="bottom"
+                   tooltip="Save Region"
+                   ng-if="userPerms.canEditRegion"
+                   ng-click="saveGroup(group)"
+                >
+                  <i class="fa fa-check"></i>
+                </a>
+                <a class="btn btn-default action-button"
+                   tooltip-placement="bottom"
+                   tooltip="Cancel Edit"
+                   ng-if="userPerms.canEditRegion"
+                   ng-click="cancelGroup(group)"
+                >
+                  <i class="fa fa-times"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr ng-show="!groups.length">
+            <td colspan="3">
+              <strong>You haven't created any regions yet</strong>
+            </td>
+          </tr>
+          <tr ng-show="query.length && !filteredGroups.length">
+            <td colspan="3">
+              <strong>No results found for search term <em>{{query}}</em></strong>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    <div class="pagination-controls" ng-show="filteredGroups.length">
+      <div class="selectedCount">
+        <div class="form-inline">
+          <span ng-if="selectedLocations.length">{{selectedLocations.length}} region<span ng-show="selectedLocations.length != 1">s</span> selected</span>
+        </div>
+      </div>
+      <dir-pagination-controls></dir-pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>

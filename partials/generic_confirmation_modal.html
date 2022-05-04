@@ -1,0 +1,7 @@
+<div class="modal-body">
+  <p ng-bind-html="confirmationMessage"></p>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary okay" ng-click="ok()" ng-enter="ok()">{{modalOptions.buttonText}}</button>
+  <button class="btn cancel" ng-hide="hideCancelBtn" ng-click="cancel()">Cancel</button>
+</div>

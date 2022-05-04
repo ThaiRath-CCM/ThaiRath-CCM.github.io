@@ -1,0 +1,112 @@
+<div class="row">
+  <div ng-show="me.permissions.user.select_music || me.permissions.user.manage_music" class="col-sm-12">
+    <div class="default-block playlists-container block-unit">
+
+      <playlist-nav></playlist-nav>
+      <div class="playlist-blurb">
+        <div class="blurb">
+          <i class="fa fa-info-circle"></i>
+          <span ng-show="currentNav === 'dayparting'" >Schedule music by time and day of the week to run automatically on any device.</span>
+          <span ng-show="currentNav === 'mix'" >Combine multiple stations together to brand your space, increase music variety, and decrease repeat songs.</span>
+        </div>
+        <div class="button-bar">
+          <a ng-show="creationURL && (userPerms.isMusicAdmin || userPerms.canManageMusic) " class="create-playlist-button large-screen" href="{{creationURL}}">{{creationLabel}}</a>
+        </div>
+      </div>
+      <div class='account-playlists tab-pages'>
+        <table>
+        <thead>
+          <tr>
+            <th class="play-control"></th>
+            <th class="name sortable" ng-click="order('name')">Name <i ng-if="orderBy == 'name'" class="fa fa-arrow-{{sortDirection}}"></i></th>
+            <th ng-class="{mobile:isMobile}" class="description">Content</th>
+            <th ng-if="currentNav === 'mix'">Ratings</th>
+            <th ng-show="!isMobile" class="created-by sortable" ng-click="order('username')">Created By <i ng-if="orderBy == 'username'" class="fa fa-arrow-{{sortDirection}}"></i></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            dir-paginate="station in filteredPlaylists = (dataset | filter: musicsearch | itemsPerPage: pageSize)"
+            ng-class="{active: checkPlaying(station)}"
+            class="playlist list-view-row"
+            touch-station
+          >
+            <td class="play-control" ng-class="{selected:station.isPlaying, displayed:showPlayButton == station.webid, mobile:isMobile}" ng-mouseover="setDisplay(station.webid)" ng-mouseleave="clearDisplay()">
+              <i class="speaker-icon fa fa-volume-up"></i>
+            </td>
+            <td ng-mouseover="setDisplay(station.webid)" ng-mouseleave="clearDisplay()" class="name" ng-class="{mobile: isMobile}">{{station.name | limitTo: 35}}</td>
+            <td ng-class="{mobile:isMobile}" ng-mouseover="setDisplay(station.webid)" ng-mouseleave="clearDisplay()" class="description" title="{{playlistDetails[station.webid]}}">
+              {{playlistDetails[station.webid] | limitTo:80}}{{playlistDetails[station.webid].length > 80 ? '...' : ''}}
+              <span ng-hide="playlistDetails[station.webid]"><i class="fa fa-spinner fa-spin" ></i></span>
+            </td>
+            <td ng-if="currentNav === 'mix'" class="rating">
+              <span ng-repeat="rid in station.content_rating_list">
+                <content-rating-icon rating-id="{{rid}}" show-tooltip="true"></content-rating-icon>
+              </span>
+            </td>
+            <td ng-show="!isMobile" ng-mouseover="setDisplay(station.webid)" ng-mouseleave="clearDisplay()" class="created-by">{{station.username}}</td>
+            <td class="actions" ng-class="{active: touchActive == station.musicid}">
+              <a ng-if="!isPrefetch()" ng-show='me.permissions.user.select_music && !station.isPlaying'
+                class="btn btn-default action-button play-now"
+                ng-click="playNow(station)"
+              >
+                Play Now
+              </a>
+              <a ng-if="!isPrefetch()" ng-show='me.permissions.user.select_music && !station.isPlaying'
+                class="btn btn-default action-button play-next"
+                ng-click="playNext(station)"
+              >
+                Play Next
+              </a>
+              <a ng-if="isPrefetch()" ng-show='me.permissions.user.select_music && !station.isPlaying'
+                class="btn btn-default action-button play-prefetch"
+                ng-click="playNext(station)"
+                title="{{prefetchTooltip()}}"
+              >
+                Play At Next Media Window
+              </a>
+              <a class="btn btn-default action-button edit-playlist"
+                 ng-href="/#/admin/{{currentNav}}/{{station.webid}}/edit"
+                 ng-show='me.permissions.account.owner || me.permissions.account.music || me.user.userid == station.userid'
+              >
+                <i class="fa fa-pencil"></i>
+              </a>
+              <a ng-show='(me.permissions.account.owner || me.permissions.account.music || me.user.userid == station.userid) && !station.isPlaying && !station.isActive'
+                class="btn btn-default action-button delete-playlist"
+                ng-click="removePlaylist(station)"
+              >
+                <i class="fa fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          <tr ng-hide="filteredPlaylists.length">
+            <td colspan="5" class="no-results-message">
+              <div class="default-row">
+                <div class="name" ng-show="!musicsearch.length > 0 && (userPerms.isMusicAdmin || userPerms.canManageMusic) "><strong>Click on <em>{{creationLabel}}</em> to create a {{shortCreationLabel}}</strong></div>
+                <div class="name" ng-show="!musicsearch.length > 0 && (!userPerms.isMusicAdmin && !userPerms.canManageMusic)"><strong>You don't currently have any {{shortCreationLabel}}s</strong></div>
+                <div class="name" ng-show="musicsearch.length > 0"><strong>No results found for search term <em>{{musicsearch}}</em></strong></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        </table>
+      </div>
+      <div class="pagination-controls">
+        <div class="count-per-page">
+          <div class="form-inline">
+            <span ng-show="currentNav === 'dayparting'">Dayparts Per Page:</span>
+            <span ng-show="currentNav === 'mix'">Mix Stations Per Page:</span>
+            <select class="form-control" id="pageSize" ng-model="pageSize">
+              <option ng-value="20">20</option>
+              <option ng-value="50">50</option>
+              <option ng-value="100">100</option>
+              <option ng-value="300">300</option>
+            </select>
+          </div>
+        </div>
+        <dir-pagination-controls on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>

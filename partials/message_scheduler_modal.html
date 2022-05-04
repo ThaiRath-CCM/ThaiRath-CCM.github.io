@@ -1,0 +1,103 @@
+<div class="scheduler-popup modal-body">
+  <h2>{{modalOptions.headerText}}</h2>
+  <form class="daypart-edit-form">
+    <div class="row scope-selector" ng-show="modalOptions.selectScope">
+      <div>
+        <input type="radio" ng-model="modalModel.scope" value="series"> Apply to entire series of messages.
+      </div>
+      <div>
+        <input type="radio" ng-model="modalModel.scope" value="solo"> Apply only to this one message.
+      </div>
+    </div>
+    <div class="row" ng-show="modalModel.scope != 'solo'">
+      <label>Message</label>
+      <ol ng-model="modalModel.message" title="{{selectedMessageName}}" class="messageSelect nya-bs-select" ng-change="checkButton()" data-live-search="true">
+        <li class="nya-bs-option" ng-class="{selected: modalModel.message == message.id}" ng-selected="modalModel.message == message.id" ng-repeat="message in modalOptions.messageList" data-value="{{message.id}}"><a>{{message.name}}</a></li>
+      </ol>
+    </div>
+    <div class="row">
+      <label>Start Time</label>
+      <div ng-click="toggleStartDatePicker()" class="date-field" ng-show="modalModel.scope != 'solo'">{{modalModel.startDate || 'Select date'}}</div>
+      <div class="date-label" ng-show="modalModel.scope == 'solo'">{{modalModel.exStartDate}}</div>
+      <input-dropdown
+        allow-custom-input="true"
+        input-placeholder=""
+        input-name="hour"
+        input-class-name="time hour digits"
+        input-required="true"
+        selected-item="modalModel.startHour"
+        default-dropdown-items="modalOptions.hourList"
+        filter-list-method="filterHours(userInput)"
+        item-selected-method="selectHour(item)"
+        input-change-method="selectHour(input);checkButton()"
+      ></input-dropdown> : 
+      <input-dropdown
+        allow-custom-input="true"
+        input-placeholder=""
+        input-name="minute"
+        input-class-name="time minute digits"
+        input-required="true"
+        selected-item="modalModel.startMinute"
+        default-dropdown-items="modalOptions.minuteList"
+        filter-list-method="filterMinutes(userInput)"
+        item-selected-method="selectMinute(item)"
+        input-change-method="selectMinute(input);checkButton()"
+      ></input-dropdown>
+      <select class="ampm" ng-model="modalModel.startAmpm">
+        <option value="am">am</option>
+        <option value="pm">pm</option>
+      </select>
+    </div>
+    <div class="row" ng-show="modalModel.scope != 'solo'">
+      <label>Repeat</label>
+      <select class="repeat" ng-model="modalModel.repeatType" ng-change="changeRepeatType()">
+        <option value="none">None</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+    </div>
+    <div class="row repeat-options" ng-show="modalModel.repeatType == 'weekly' && modalModel.scope != 'solo'">
+      <label></label>
+      <week-selector selected-days="modalModel.daysOfWeek"></week-selector>
+    </div>
+    <div class="row" ng-show="showDayPrompt">
+      <label></label>
+      <span class="day-prompt">Select the days your message will play</span>
+    </div>
+    <div class="row end-repeat" ng-show="modalModel.repeatType != 'none' && modalModel.scope != 'solo'">
+      <label>End Repeat</label>
+      <select class="end-repeat" ng-model="modalModel.endRepeatType" ng-change="changeEndRepeatType()">
+        <option value="afterPlays">After</option>
+        <option value="onDate">On Date</option>
+      </select>
+      <div class="afterPlays" ng-show="modalModel.endRepeatType == 'afterPlays'">
+        <input-dropdown
+          allow-custom-input="true"
+          input-placeholder=""
+          input-name="playcount"
+          input-class-name="play-count digits"
+          input-required="false"
+          selected-item="modalModel.playCount"
+          default-dropdown-items="modalOptions.playCountList"
+          item-selected-method="selectPlayCount(item)"
+          input-change-method="selectPlayCount(input)"
+        ></input-dropdown>
+        <span>Plays</span>
+      </div>
+      <div class="onDate" ng-show="modalModel.endRepeatType == 'onDate'">
+        <div ng-click="toggleEndDatePicker()" class="date-field">{{modalModel.endDate || 'Select date'}}</div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <a class="btn-delete" ng-click="del()" ng-show="!modalOptions.hideDelete">{{modalOptions.deleteButtonText}}</a>
+  <button class="btn submit btn-primary okay" ng-click="ok()" ng-disabled="!buttonEnabled" ng-keydown="handleEnterKey($event)">{{modalOptions.actionButtonText}}</button>
+  <button class="btn cancel" ng-click="cancel()">Cancel</button>
+</div>
+<div class="date-picker-popup" style="top:130px;left:107px;" ng-show="startDatePickerVisible" hide-popup="closeStartDatePicker()">
+  <date-picker ng-model="modalModel.startDate" format-date="formatDate" on-date-selected="closeStartDatePicker()" ng-keyup="closeStartDatePicker()"></date-picker>
+</div>
+<div class="date-picker-popup" style="top:251px;left:200px;" ng-show="endDatePickerVisible" hide-popup="closeEndDatePicker()">
+  <date-picker ng-model="modalModel.endDate" format-date="formatDate" on-date-selected="closeEndDatePicker()" ng-keyup="closeEndDatePicker()"></date-picker>
+</div>

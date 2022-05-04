@@ -1,0 +1,12 @@
+<div class='row-fluid'>	
+	<div class="span4 register-plan-container block-unit" ng-repeat="plan in plans | orderBy:sort" ng-click="selectPlan(plan)">
+		<div class='top-bar'>
+    		<p class="title">{{plan.name}}</p>
+    		<p class="price" title="{{plan.recurring_cost / 100}}">${{plan.recurring_cost / 100}}</p>
+    		<div class='shadow'></div>
+  		</div>
+  		<div class="features">
+  			<div class="feature" ng-class-odd="'odd'" ng-class-even="'even'" ng-repeat="feature in plan.description">{{feature}}</div>
+  		</div>			
+	</div>	
+</div>

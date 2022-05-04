@@ -1,0 +1,92 @@
+  <div class="playlist-ccm-station-filter">
+    <div class="filter-main-screen">
+      <ul class="filter-menu">
+        <li class="show-stations-for"><span class="reset-label">Filter By </span><span class="reset-button separated" ng-click="resetFilter('all')"><i class="fa fa-th-large"></i> Show All</span></li>
+        <li
+          ng-class="['most-popular', { active: playlistStationFilter.popular }]"
+          ng-click="toggleFilter('popular')">
+            <i class="fa fa-star-o"></i> Most Popular</li>
+        <li
+          ng-class="['newest-releases', { active: playlistStationFilter.newest }]"
+          ng-click="toggleFilter('newest')">
+            <i class="fa fa-clock-o"></i> Newest Releases</li>
+        <li
+          ng-class="['pandora', { active: playlistStationFilter.pandora }]"
+          ng-click="toggleFilter('pandora')">
+            <i></i> <img src="../images/pandora.svg" /></li>
+        <li
+          ng-class="['favorites', { active: playlistStationFilter.favorites }]"
+          ng-click="toggleFilter('favorites')">
+          <i class="fa fa-heart"></i> Favorites</li>
+        <li
+          ng-class="['recent', { active: playlistStationFilter.recent }]"
+          ng-click="toggleFilter('recent')">
+            <i class="fa fa-history"></i> Recent {{filterType}}</li>
+        <li class="category genre" ng-class="{open: playlistStationFilter.drawerOpen.genre === true}">
+          <generic-public-station-filter-desktop-selector
+            category="genre"
+            title="Genre"
+            icon="fa-music"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+            reset-filter="resetFilter(filterType)"
+            show-category-filter="true"
+          />
+        </li>
+        <li class="category mood" ng-class="{open: playlistStationFilter.drawerOpen.mood === true}">
+          <generic-public-station-filter-desktop-selector
+            category="mood"
+            title="Mood"
+            icon="fa-bolt"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+            reset-filter="resetFilter(filterType)"
+            show-category-filter="true"
+          />
+        </li>
+        <li class="category business" ng-class="{open: playlistStationFilter.drawerOpen.business === true}">
+          <generic-public-station-filter-desktop-selector
+            category="business"
+            title="Business Type"
+            icon="fa-handshake-o"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+            reset-filter="resetFilter(filterType)"
+            show-category-filter="true"
+          />
+        </li>
+        <li class="category rating" ng-class="{open: playlistStationFilter.drawerOpen.rating === true}">
+          <generic-public-station-filter-desktop-selector
+            category="rating"
+            title="Content Rating"
+            icon="fa-balance-scale"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            show-content-ratings-explanation="showContentRatingsExplanation()"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+            reset-filter="resetFilter(filterType)"
+            show-category-filter="true"
+          />
+        </li>
+    </div>
+  </div>
+

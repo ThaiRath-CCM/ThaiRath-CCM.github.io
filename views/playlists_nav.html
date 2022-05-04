@@ -1,0 +1,42 @@
+<div class='account-playlists tabs'>
+  <nav class="navbar navbar-default" ng-class="{mobile: isMobile, 'filter-open': filterMenuOpen}">
+    <div class="nav container">
+      <div class="navbar-hamburger">
+        <button type="button" class="navbar-toggle toggle-menu" on-document-click="toggleMenu( $event )">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <div class="toggle-menu">
+          <i class="fa fa-{{currentNavIcon}} toggle-menu"></i><span class="tab-label toggle-menu">{{currentNavName}}</span>
+        </div>
+      </div>
+
+      <div class="navbar navbar-collapse" ng-class="{collapse: isNavCollapsed}">
+        <ul class="nav navbar-nav">
+          <li ng-repeat="set in playlistNav" class="title nav-link" ng-class="{selected: currentNav == set.id}" ng-click="changelocation(set.url)" name="{{set.id}}">
+            <i ng-show="set.icon" class="fa fa-{{set.icon}}"></i>{{set.name}}
+          </li>
+        </ul>
+      </div>
+      <div class="search-icon" ng-click="toggleSearch()" ng-if="allowSearch && !showSearch && isMobile"><i class="fa fa-search"></i></div>
+      <div class="playlist-search" ng-show="allowSearch" ng-class="{open: showSearch, mobile: isMobile}">
+        <div class="search-input">
+          <input type='text' focus-when-true="showSearch" class='searchbox form-control filter' search-field placeholder="Search"
+            ng-model='musicsearch'
+            ng-model-options='{ debounce: 500 }'
+            ng-change='updateSearch()'>
+        </div>
+        <div class="search-icon" ng-show="!isMobile"><i class="fa fa-search"></i></div>
+        <div class="cancel-button" ng-show="isMobile" ng-click="toggleSearch()">Cancel</div>
+      </div>
+    </div>
+  </nav>
+  <div id="playlistToolbar" class="playlist-toolbar" ng-if="currentNav == 'public'">
+    <div class="filters" ng-class="{open: filterMenuOpen}" ng-click="toggleFilters()" ng-if="!me.has_company_stations && !me.account.has_restricted_stations">
+      <i class="icon fa fa-sliders"></i>
+      Filters
+      <i class="chevron fa" ng-class="{'fa-chevron-right': !filterMenuOpen, 'fa-chevron-down': filterMenuOpen}"></i>
+    </div>
+  </div>
+</div>

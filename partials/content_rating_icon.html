@@ -1,0 +1,12 @@
+<div class="content-rating-icon rating-{{vm.rating.rating.toLowerCase()}} hidden-xs hidden-sm hidden-md"
+     ng-class="::{ 'has-tooltip': vm.showTooltip, 'rating-summary': vm.showTooltip && !vm.showDetails }"
+     ng-attr-tooltip="{{vm.tooltip}}"
+     ng-attr-tooltip-placement="{{vm.tooltipPlacement}}"
+     ng-attr-tooltip-append-to-body="{{vm.tooltipAppendToBody}}">
+  <div class="bg"></div>
+  <div class="fg" ng-bind="::vm.rating.rating"></div>
+</div>
+<div class="content-rating-icon rating-{{vm.rating.rating.toLowerCase()}} hidden-lg">
+  <div class="bg"></div>
+  <div class="fg" ng-bind="::vm.rating.rating"></div>
+</div>

@@ -1,0 +1,73 @@
+<div class="row container api-keys-container">
+  <div class="col-md-8">
+    <div class="action-bar-title">
+      <a class="btn btn-default back-button" ng-click="clickBackButton()">
+        <i class="fa fa-arrow-left"></i>
+      </a>
+      <h2>Manage API Keys</h2>
+    </div>
+  </div>
+  <div>Manage Third-party Device API Keys</div>
+  <div class="table-list">
+    <div class="api-keys" ng-if="apiKeyList.length > 0">
+      <div class="admin-toolbar header left-right">
+        <div class="left-side">
+          <div class="mass-nav">
+            <div ng-show="userPerms.isAccountOwner" class="btn btn-danger btn-revoke-api-key" ng-click="revokeKeys()">Disable Keys</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-container api-keys-outer-container">
+        <div>
+          <table class="table table-hover api-key-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="sortable api-key" ng-click="order('apikey')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'apikey'}">
+                    <span tooltip="Sort by API Key" tooltip-placement="top">API Key</span>
+                    <span class="fa " ng-if="orderBy === 'apikey'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable state" ng-click="order('state')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'state'}">
+                    <span tooltip="Sort by Key State" tooltip-placement="top">State</span>
+                    <span class="fa " ng-if="orderBy === 'state'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr dir-paginate="key in apiKeys = (apiKeyList | orderBy:orderBy:reverse | itemsPerPage: pageSize) track by key.apikey">
+                <td class="checkboxen">
+                  <input type="checkbox" value="{{key.apikey}}">
+                </td>
+                <td class="note apikey">
+                  <div class="api-key">
+                    {{key.apikey}}
+                  </div>
+                </td>
+                <td class="note state">
+                  <div class="key-state">
+                    {{key.state}}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+              <tr ng-if="!apiKeyList.length" class="empty-set">
+                <td colspan="3">
+                  <strong>No associated keys found</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pagination-controls" ng-show="apiKeyList.length">
+        <dir-pagination-controls max-size="5" on-page-change="pageChanged()"></dir-pagination-controls>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,85 @@
+<div class="row locations-container">
+	<div class="col-md-12">
+    <div class="locations">
+      <div class="admin-toolbar header left-right">
+        <div class="left-side empty"></div>
+        <div class="right-side">
+          <a ng-click="changelocation('/admin/addlocation')" class="btn btn-success" ng-show="(me.permissions.account.payment || me.permissions.account.owner)">
+            <i class="fa fa-plus"></i> Add Location</a>
+          <input ng-model="query" class="form-control filter" search-field placeholder="Search Locations">
+        </div>
+      </div>
+      <div class="table-container">
+        <div>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th class="sortable location-name" ng-click="order('username')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'username'}">
+                    <span tooltip="Sort by Location" tooltip-placement="top">Location</span>
+                    <span class="fa " ng-show="orderBy === 'username'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable address" ng-click="order('address')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'address'}">
+                    <span tooltip="Address" tooltip-placement="top">Address</span>
+                    <span class="fa " ng-show="orderBy === 'address'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable stream-count" ng-click="order('totalStreamCount')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'totalStreamCount'}">
+                    <span tooltip="Zones Quantity" tooltip-placement="top">Zone Quantity</span>
+                    <span class="fa " ng-show="orderBy === 'totalStreamCount'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable stream-count" ng-click="order('activeStreamCount')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'activeStreamCount'}">
+                    <span tooltip="Sort by Streaming Zones" tooltip-placement="top">Zones Streaming</span>
+                    <span class="fa " ng-show="orderBy === 'activeStreamCount'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable edit">
+                  <div class="header-cell">
+                    <span tooltip="Edit Location" tooltip-placement="top">Edit</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr dir-paginate="location in filteredLocations = (locations | filter: search() | orderBy:orderBy:reverse | itemsPerPage: pageSize)">
+                <td class="note location-name">
+                  <div class="location-username">
+                    <span ng-if="location.isAdmin"><i class="fa fa-user"></i>&nbsp;&nbsp;</span>{{location.username}}
+                  </div>
+                </td>
+                <td class="note address">
+                  <div>{{location.address}}</div>
+                </td>
+                <td class="note stream-count">{{location.totalStreamCount}}</td>
+                <td class="note stream-count">{{location.activeStreamCount}}</td>
+                <td class="edit">
+                  <a ng-click="changelocation('/admin/locations/' + location.userid + '/edit')"
+                     class="btn btn-default action-button"
+                     tooltip-placement="bottom"
+                     tooltip="Edit Location"
+                  >
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr ng-hide="filteredLocations.length">
+                <td colspan="6">
+                  <strong>No results found <span ng-show="query.length > 0">for search term <em>{{query}}</em></span></strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="pagination-controls" ng-show="filteredLocations.length">
+      <dir-pagination-controls max-size="5"></dir-pagination-controls>
+    </div>
+
+  </div>
+</div>

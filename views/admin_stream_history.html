@@ -1,0 +1,100 @@
+<div class="row streamed-container">
+  <div class="col-md-12">
+    <div class="default-block">
+      <div class="admin-toolbar zone-row header left-right">
+        <div class="left-side multiselect-row zone-row">
+          <label>Select Zone</label>
+          <select class="form-control"
+                  ng-model="stream.streamid"
+                  ng-options="streamObj.streamid as streamObj.streamname for streamObj in streams | orderBy: 'streamname'"
+                  ng-change="getStreamHistory(stream.streamid)"
+                  ng-disabled="streams.length <= 1"
+          >
+          </select>
+        </div>
+        <div class="right-side">
+          <input ng-model="query" class="form-control filter" placeholder="Search Stream History">
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="table table-hover">
+          <tbody>
+            <tr ng-repeat="song in filteredStreamed = (streamed | filter: {streamid: filteredStream.streamid} | filter: search())" class="stream-content">
+              <td class="stream-content-song timestamp">
+                <div class="stream-content-timestamp">
+                  <button class="play-preview stream-content"
+                          id="songId-{{song.mediaid}}"
+                          title="Preview Song"
+                          play-button
+                          current-media="currentMedia"
+                          ng-click="previewSong($event, song)">
+                  </button>
+                  <div class="timestamp">{{song.timestamp.date}}</div>
+                  <div class="timestamp">{{song.timestamp.time}}</div>
+                </div>
+              </td>
+              <td class="stream-content-song metadata">
+                <div class="stream-content-metadata">
+                  <div class="stream-content-art" ng-style="::{'background-image': 'url(' + song.album.thumb_url + ')'}"></div>
+                  <div class="stream-content-song-details">
+                    <span class="title">{{song.song}}</span>
+                    <span class="albumartist">{{song.artist}}</span>
+                    <span class="station">{{song.station}}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="stream-content-stream">
+                <div class="stream-content-stream-details">
+                  <div class="stream-content-device-image">
+                    <i class="fa fa-fw fa-laptop" ng-if="song.deviceType === 'browser'"></i>
+                    <i class="fa fa-fw fa-mobile" ng-if="song.deviceType === 'mobile'"></i>
+                    <i class="fa fa-fw fa-hdd-o" ng-if="song.deviceType === 'cloudbox'"></i>
+                    <i class="fa fa-fw fa-cube" ng-if="song.deviceType === 'sonos'"></i>
+                  </div>
+                  <div class="stream-content-streamname">
+                    {{song.streamname}}
+                  </div>
+                </div>
+              </td>
+              <td class="stream-content-feedback">
+                <div class="stream-content-feedback-details">
+                  <div class="stream-content-remove-actions">
+                    <button class="remove-stream"
+                            title="Remove Song"
+                            ng-click="removeSong(song, $index)"
+                            ng-if="!song.removeActive"
+                    >
+                      <i class="fa fa-thumbs-down"></i>
+                    </button>
+                    <span class="btn btn-xs btn-default removed-song non-global" ng-if="song.removeActive && !song.removeGlobal">Removed</span>
+                    <span class="removed-song global" ng-if="song.removeActive && song.removeGlobal">Removed from all locations</span>
+                    <span class="btn btn-xs btn-default restore-song" ng-if="song.removeActive && !song.removeGlobal" ng-click="restore(song)">Restore</span>
+                  </div>
+                  <div class="stream-content-like-actions" ng-if="!song.removeActive">
+                    <button class="like-stream"
+                            ng-attr-title="{{song.liked ? 'Unlike Song' : 'Like Song'}}"
+                            ng-class="{ selected: song.liked }"
+                            ng-disabled="song.isMediaLikeRequestActive"
+                            ng-click="toggleSongLike(song)"
+                    >
+                      <i class="fa fa-thumbs-up"></i>
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr ng-if="!filteredStreamed.length">
+              <td colspan="2">
+                <span ng-if="query.length > 0">No results found for the search term <em>{{query}}</em></span>
+                <span ng-if="query.length === 0 && streamed.length === 0">This zone has no recent stream history</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="message-regulation">
+      Only the most recent entries are shown due to streaming regulations. Please contact our support team for more details about your stream history.</p>
+    </div>
+  </div>
+</div>

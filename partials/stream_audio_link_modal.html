@@ -1,0 +1,32 @@
+<form name="form" ng-submit="vm.submit(form)" novalidate>
+  <div class="modal-body">
+    <h2>Setup Audio Ducking</h2>
+    <div class="row" style="margin-top: 15px;">
+      <div class="form-group">
+        <label class="control-label no-margin-bottom">Overhead Zone <span class="text-muted">(CloudBox)</span></label>
+        <br>
+        <p class="form-control-static no-margin-top">
+          <span ng-bind="::vm.form.permanentStream.username"></span> &mdash; <span ng-bind="::vm.form.permanentStream.streamname"></span>
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="ephemeral-zone">Floor Zone</label>
+        <select class="form-control" id="ephemeral-zone" name="ephemeralZone" type="text" required
+          ng-options="stream.streamid as stream.label for stream in ::vm.form.streams | orderBy: ['username', 'streamname']"
+          ng-model="vm.form.ephemeralStreamId">
+          <option value="">&mdash; Select a zone &mdash;</option>
+        </select>
+        <p class="help-block validation-error no-margin-bottom" ng-show="form.ephemeralZone.$error.required && form.$submitted">A floor zone is required</p>
+      </div>
+    </div>
+    <hr>
+    <p>Audio ducking works by pausing the music for the overhead zone when the floor zone begins playing music. In addition, when the floor zone stops playing music, the overhead zone will begin playing music again.<br><br><strong>Note:</strong> Audio ducking is currently only supported between a CloudBox and the Cloud Cover Music mobile app.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn submit btn-danger pull-left" type="button"
+      ng-if="vm.isUpdatingAudioLink"
+      ng-click="vm.remove()">Remove</button>
+    <button class="btn submit btn-primary okay" type="submit">Save</button>
+    <button class="btn submit btn-default" ng-click="$dismiss()">Cancel</button>
+  </div>
+</form>

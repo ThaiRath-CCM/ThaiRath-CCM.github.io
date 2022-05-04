@@ -1,0 +1,28 @@
+<form name="messageUploadForm" class="message-upload-form">
+<div class="message-upload-modal modal-body" ng-keyup="($event.keyCode == 13 && buttonEnabled && ok()) || ($event.keyCode == 27 && close())">
+  <h2>{{modalOptions.headerText}}</h2>
+  <div class="row">
+    <label class="labelLeft">Filename</label>
+    <label class="file-selection" for="file">
+      <div class="filename" ng-class="{error: fileTypeError || messageUploadForm.$error.maxSize}">{{modalModel.file.name}}</div>
+      <input type="file" class="file-input" ngf-select="checkButton()" ng-model="modalModel.file" name="file" id="file" accept="audio/mpeg, audio/mp3" ngf-max-size="50MB" required>
+      <span class="file-button" for="file">Choose File</span>
+    </label>
+  </div>
+  <div class="row errorMessage" ng-show="messageUploadForm.$error.maxSize">File cannot be larger than 50mb</div>
+  <div class="row errorMessage" ng-show="fileTypeError && !messageUploadForm.$error.maxSize">{{fileTypeError}}</div>
+  <div class="row">
+    <label class="labelLeft">Title</label>
+    <input focus-input type="text" class="title-input" ng-model="modalModel.title" ng-change="checkButton()" required>
+  </div>
+  <div class="alert alert-info">By uploading this message, you confirm that you are the copyright owner. The Cloud Cover Music license does not cover music used in messages.</div>
+  <div class="status" ng-class="{showProgress: isUploadingFile}">
+    <div class="progress-bar" ng-style="{'width': progress + '%'}"></div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn submit btn-primary okay" ng-click="ok()" ng-disabled="!buttonEnabled">{{modalOptions.actionButtonText}}</button>
+  <button class="btn cancel" ng-click="cancel()">Cancel</button>
+</div>
+</form>
+

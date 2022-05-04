@@ -1,0 +1,796 @@
+<div class="reports">
+  <h1 class="h2">Reports</h1>
+  <p class="reports-desc" ng-if="::vm.me.user.email">All reports are delivered to the email address associated with your location: <strong><em ng-bind="::vm.me.user.email"></em></strong></p>
+  <p class="text-warning" ng-if="::!vm.me.user.email">There is no email address associated with your location. <strong>An email address is required in order to generate reports.</strong> <a ng-if="::vm.me.permissions.account.owner" ui-sref="account.admin.edituser({ locationid: vm.me.user.userid })">Add your email address</a></p>
+  <div class="form-group timezone-form-group">
+    <label class="control-label" for="timezone">Report Time Zone</label>
+    <select class="form-control" id="timezone" required
+      ng-options="zone for zone in ::vm.timezones"
+      ng-model="vm.form.timezone"></select>
+    <i class="fa fa-question-circle" tooltip="All custom reports are generated with dates and times relative to the selected time zone."></i>
+  </div>
+
+  <section class="report" ng-if="::entStatus.isEnterprise">
+    <h2 class="h3"><i class="fa  fa-volume-up fa-push-right"></i>Current Activity</h2>
+    <p>See a snapshot of current location activity, based on activity in the previous 10 minutes.</p>
+    <div class="report-section-header">
+      <h3 class="h4">Custom Report</h3>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <fieldset class="form-group">
+          <legend>Locations</legend>
+          <div class="location-select">
+            <label class="radio-inline filterlabel" for="lr9">
+              <input id="lr9" name="locationgroup5" type="radio" value="all"
+                ng-model="vm.locationOptions[4]"
+                ng-change="vm.resetReportSubmitted('currentActivity')">
+              All
+            </label>
+            <label class="radio-inline filterlabel" for="lr10">
+              <input id="lr10" name="locationgroup5" type="radio" value="select"
+                ng-model="vm.locationOptions[4]"
+                ng-change="vm.resetReportSubmitted('currentActivity')">
+              Selected
+            </label>
+            <div class="location-picker" ng-if="vm.locationOptions[4] === 'select'">
+              <ol class="nya-bs-select"
+                ng-model="vm.selectedLocations[4]"
+                multiple
+                data-live-search="true"
+                title="Select Locations"
+                selected-text-format="count > 5"
+                actions-box="true"
+                size="10">
+                <li nya-bs-option="loc in ::vm.locations" data-value="::loc.username">
+                  <a><span ng-bind="::loc.username"></span> <span class="fa fa-check check-mark"></span></a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </fieldset>
+        <button class="btn btn-primary"
+          ng-disabled="!vm.me.user.email || vm.reports.currentActivity.submitted || vm.reports.currentActivity.loading"
+          ng-click="vm.generateCurrentActivityReport()">
+          <i class="fa fa-paper-plane fa-push-right"></i>Generate
+        </button>
+        <span class="report-loading" ng-show="vm.reports.currentActivity.loading"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+      </div>
+    </div>
+    <div class="report-section-header">
+      <h3 class="h4">Receive Automated Reports<i class="fa fa-question-circle fa-push-left-lg" tooltip="Schedule the generation of a Current Activity report that is delivered to your location email address as well as any additional email recipients that you specify."></i></h3>
+      <p class="text-muted">Includes all locations. Custom report options do <em>not</em> apply to automated reports.</p>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <form name="currentActivityRecurringForm" novalidate ng-submit="vm.updateRecurringReport('currentActivity', currentActivityRecurringForm)">
+          <fieldset class="automated-report-opt-list">
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="currentActivityRecurringFrequency" type="checkbox" ng-model="vm.form.reports.currentActivity.recurring.daily.active">
+                    Daily
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Calculated and sent each day around noon."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.currentActivity.recurring.daily.active || (vm.form.reports.currentActivity.recurring.daily.active && vm.form.reports.currentActivity.recurring.daily.recipients.length)"
+                  ng-click="vm.addRecipient('currentActivity', 'daily', currentActivityRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.currentActivity.recurring.daily.active && vm.form.reports.currentActivity.recurring.daily.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.currentActivity.recurring.daily.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': currentActivityRecurringForm['currentActivityDailyRecipient' + $index].$invalid && currentActivityRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="currentActivityDailyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.currentActivity.recurring.daily.recipients[$index]"
+                        ng-change="currentActivityRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('currentActivity', 'daily', $index, currentActivityRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="currentActivityRecurringForm['currentActivityDailyRecipient' + $index].$error.required && currentActivityRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="currentActivityRecurringForm['currentActivityDailyRecipient' + $index].$error.email && currentActivityRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.currentActivity.recurring.daily.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('currentActivity', 'daily', currentActivityRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+          <button class="btn btn-success" type="submit" ng-disabled="!vm.me.user.email || currentActivityRecurringForm.$pristine">
+            <i class="fa fa-cloud fa-push-right"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="report">
+    <h2 class="h3"><i class="fa fa-building-o fa-push-right"></i>Location Status</h2>
+    <p>See which locations have been online/offline over a given time period.</p>
+    <div class="report-section-header">
+      <h3 class="h4">Custom Report</h3>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="form-group d-inline-block">
+          <label class="control-label" for="location-status-start-date">Start date</label>
+          <div class="form-inline">
+            <select class="form-control" id="location-status-start-date"
+              ng-options="opt.name for opt in vm.dateRangeOptions"
+              ng-model="vm.selectedDateRange[0]"
+              ng-change="vm.resetReportSubmitted('streamStatus')"></select>
+          </div>
+        </div>
+        <fieldset class="form-group status-form-group">
+          <legend>Status</legend>
+          <label class="radio-inline filterlabel" for="r1">
+            <input id="r1" name="filtergroup" type="radio" value="0"
+              ng-model="vm.selectedFilter"
+              ng-change="vm.resetReportSubmitted('streamStatus')">
+            All
+          </label>
+          <label class="radio-inline filterlabel" for="r2">
+            <input id="r2" name="filtergroup" type="radio" value="1"
+              ng-model="vm.selectedFilter"
+              ng-change="vm.resetReportSubmitted('streamStatus')">
+            Online
+          </label>
+          <label class="radio-inline filterlabel" for="r3">
+            <input id="r3" name="filtergroup" type="radio" value="2"
+              ng-model="vm.selectedFilter"
+              ng-change="vm.resetReportSubmitted('streamStatus')">
+            Offline
+          </label>
+        </fieldset>
+        <fieldset class="form-group">
+          <legend>Locations</legend>
+          <div class="location-select">
+            <label class="radio-inline filterlabel" for="lr1">
+              <input id="lr1" name="locationgroup1" type="radio" value="all"
+                ng-model="vm.locationOptions[0]"
+                ng-change="vm.resetReportSubmitted('streamStatus')">
+              All
+            </label>
+            <label class="radio-inline filterlabel" for="lr2">
+              <input id="lr2" name="locationgroup1" type="radio" value="select"
+                ng-model="vm.locationOptions[0]"
+                ng-change="vm.resetReportSubmitted('streamStatus')">
+              Selected
+            </label>
+            <div class="location-picker" ng-if="vm.locationOptions[0] === 'select'">
+              <ol class="nya-bs-select"
+                ng-model="vm.selectedLocations[0]"
+                multiple
+                data-live-search="true"
+                title="Select Locations"
+                selected-text-format="count > 5"
+                actions-box="true"
+                size="10">
+                <li nya-bs-option="loc in vm.locations" data-value="loc.username">
+                  <a><span ng-bind="loc.username"></span> <span class="fa fa-check check-mark"></span></a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </fieldset>
+        <button class="btn btn-primary"
+          ng-disabled="!vm.me.user.email || vm.reports.streamStatus.submitted || vm.reports.streamStatus.loading"
+          ng-click="vm.generateStreamStatusReport()">
+          <i class="fa fa-paper-plane fa-push-right"></i>Generate
+        </button>
+        <span class="report-loading" ng-show="vm.reports.streamStatus.loading"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+      </div>
+    </div>
+    <div class="report-section-header">
+      <h3 class="h4">Receive Automated Reports<i class="fa fa-question-circle fa-push-left-lg" tooltip="Schedule the generation of a Location Status report that is delivered to your location email address as well as any additional email recipients that you specify."></i></h3>
+      <p class="text-muted">Includes all locations that are online or offline. Custom report options do <em>not</em> apply to automated reports.</p>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <form name="streamStatusRecurringForm" novalidate ng-submit="vm.updateRecurringReport('streamStatus', streamStatusRecurringForm)">
+          <fieldset class="automated-report-opt-list">
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="streamStatusRecurringFrequency" type="checkbox" ng-model="vm.form.reports.streamStatus.recurring.daily.active">
+                    Daily
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each day around midnight. Includes data from the previous day."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.streamStatus.recurring.daily.active || (vm.form.reports.streamStatus.recurring.daily.active && vm.form.reports.streamStatus.recurring.daily.recipients.length)"
+                  ng-click="vm.addRecipient('streamStatus', 'daily', streamStatusRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.streamStatus.recurring.daily.active && vm.form.reports.streamStatus.recurring.daily.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.streamStatus.recurring.daily.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': streamStatusRecurringForm['streamStatusDailyRecipient' + $index].$invalid && streamStatusRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="streamStatusDailyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.streamStatus.recurring.daily.recipients[$index]"
+                        ng-change="streamStatusRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('streamStatus', 'daily', $index, streamStatusRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="streamStatusRecurringForm['streamStatusDailyRecipient' + $index].$error.required && streamStatusRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="streamStatusRecurringForm['streamStatusDailyRecipient' + $index].$error.email && streamStatusRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.streamStatus.recurring.daily.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('streamStatus', 'daily', streamStatusRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="streamStatusRecurringFrequency" type="checkbox" ng-model="vm.form.reports.streamStatus.recurring.weekly.active">
+                    Weekly
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each Sunday night. Includes data from the previous week."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.streamStatus.recurring.weekly.active || (vm.form.reports.streamStatus.recurring.weekly.active && vm.form.reports.streamStatus.recurring.weekly.recipients.length)"
+                  ng-click="vm.addRecipient('streamStatus', 'weekly', streamStatusRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.streamStatus.recurring.weekly.active && vm.form.reports.streamStatus.recurring.weekly.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.streamStatus.recurring.weekly.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': streamStatusRecurringForm['streamStatusWeeklyRecipient' + $index].$invalid && streamStatusRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="streamStatusWeeklyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.streamStatus.recurring.weekly.recipients[$index]"
+                        ng-change="streamStatusRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('streamStatus', 'weekly', $index, streamStatusRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="streamStatusRecurringForm['streamStatusWeeklyRecipient' + $index].$error.required && streamStatusRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="streamStatusRecurringForm['streamStatusWeeklyRecipient' + $index].$error.email && streamStatusRecurringForm.$submitted">Invalid email address</span>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.streamStatus.recurring.weekly.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('streamStatus', 'weekly', streamStatusRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+          <button class="btn btn-success" type="submit" ng-disabled="!vm.me.user.email || streamStatusRecurringForm.$pristine">
+            <i class="fa fa-cloud fa-push-right"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="report">
+    <h2 class="h3"><i class="fa fa-line-chart fa-push-right"></i>Locations Added</h2>
+    <p>See which locations have been added since a given date.</p>
+    <div class="report-section-header">
+      <h3 class="h4">Custom Report</h3>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="form-group">
+          <label class="control-label" for="locations-added-added-since">Added since</label>
+          <div class="form-inline">
+            <select class="form-control input-sm" id="locations-added-added-since"
+              ng-options="opt.name for opt in vm.extendedDateRangeOptions"
+              ng-model="vm.selectedDateRange[1]"
+              ng-change="vm.resetReportSubmitted('locationsAdded')"></select>
+          </div>
+        </div>
+        <fieldset class="form-group">
+          <legend>Locations</legend>
+          <div class="location-select">
+            <label class="radio-inline filterlabel" for="lr7">
+              <input id="lr7" name="locationgroup4" type="radio" value="all"
+                ng-model="vm.locationOptions[1]"
+                ng-change="vm.resetReportSubmitted('locationsAdded')">
+              All
+            </label>
+            <label class="radio-inline filterlabel" for="lr8">
+              <input id="lr8" name="locationgroup4" type="radio" value="select"
+                ng-model="vm.locationOptions[1]"
+                ng-change="vm.resetReportSubmitted('locationsAdded')">
+              Selected
+            </label>
+            <div class="location-picker" ng-if="vm.locationOptions[1] === 'select'">
+              <ol class="nya-bs-select"
+                ng-model="vm.selectedLocations[1]"
+                multiple
+                data-live-search="true"
+                title="Select Locations"
+                selected-text-format="count > 5"
+                actions-box="true"
+                size="10">
+                <li nya-bs-option="loc in vm.locations" data-value="loc.username">
+                  <a><span ng-bind="::loc.username"></span> <span class="fa fa-check check-mark"></span></a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </fieldset>
+        <button class="btn btn-primary"
+          ng-disabled="!vm.me.user.email || vm.reports.locationsAdded.submitted || vm.reports.locationsAdded.loading"
+          ng-click="vm.generateLocationsAddedReport()">
+          <i class="fa fa-paper-plane fa-push-right"></i>Generate
+        </button>
+        <span class="report-loading" ng-show="vm.reports.locationsAdded.loading"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+      </div>
+    </div>
+    <div class="report-section-header">
+      <h3 class="h4">Receive Automated Reports<i class="fa fa-question-circle fa-push-left-lg" tooltip="Schedule the generation of a Locations Added report that is delivered to your location email address as well as any additional email recipients that you specify."></i></h3>
+      <p class="text-muted">Includes all locations. Custom report options do <em>not</em> apply to automated reports.</p>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <form name="locationsAddedRecurringForm" novalidate ng-submit="vm.updateRecurringReport('locationsAdded', locationsAddedRecurringForm)">
+          <fieldset class="automated-report-opt-list">
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="locationsAddedRecurringFrequency" type="checkbox" ng-model="vm.form.reports.locationsAdded.recurring.daily.active">
+                    Daily
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each day around midnight. Includes data from the previous day."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.locationsAdded.recurring.daily.active || (vm.form.reports.locationsAdded.recurring.daily.active && vm.form.reports.locationsAdded.recurring.daily.recipients.length)"
+                  ng-click="vm.addRecipient('locationsAdded', 'daily', locationsAddedRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.locationsAdded.recurring.daily.active && vm.form.reports.locationsAdded.recurring.daily.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.locationsAdded.recurring.daily.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': locationsAddedRecurringForm['locationsAddedDailyRecipient' + $index].$invalid && locationsAddedRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="locationsAddedDailyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.locationsAdded.recurring.daily.recipients[$index]"
+                        ng-change="locationsAddedRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('locationsAdded', 'daily', $index, locationsAddedRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="locationsAddedRecurringForm['locationsAddedDailyRecipient' + $index].$error.required && locationsAddedRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="locationsAddedRecurringForm['locationsAddedDailyRecipient' + $index].$error.email && locationsAddedRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.locationsAdded.recurring.daily.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('locationsAdded', 'daily', locationsAddedRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="locationsAddedRecurringFrequency" type="checkbox" ng-model="vm.form.reports.locationsAdded.recurring.weekly.active">
+                    Weekly
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each Sunday night. Includes data from the previous week."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.locationsAdded.recurring.weekly.active || (vm.form.reports.locationsAdded.recurring.weekly.active && vm.form.reports.locationsAdded.recurring.weekly.recipients.length)"
+                  ng-click="vm.addRecipient('locationsAdded', 'weekly', locationsAddedRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.locationsAdded.recurring.weekly.active && vm.form.reports.locationsAdded.recurring.weekly.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.locationsAdded.recurring.weekly.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': locationsAddedRecurringForm['locationsAddedWeeklyRecipient' + $index].$invalid && locationsAddedRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="locationsAddedWeeklyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.locationsAdded.recurring.weekly.recipients[$index]"
+                        ng-change="locationsAddedRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('locationsAdded', 'weekly', $index, locationsAddedRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="locationsAddedRecurringForm['locationsAddedWeeklyRecipient' + $index].$error.required && locationsAddedRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="locationsAddedRecurringForm['locationsAddedWeeklyRecipient' + $index].$error.email && locationsAddedRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.locationsAdded.recurring.weekly.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('locationsAdded', 'weekly', locationsAddedRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+          <button class="btn btn-success" type="submit" ng-disabled="!vm.me.user.email || locationsAddedRecurringForm.$pristine">
+            <i class="fa fa-cloud fa-push-right"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="report">
+    <h2 class="h3"><i class="fa fa-clock-o fa-push-right"></i>Detailed Streaming Hours</h2>
+    <p>See how many hours your locations have streamed per day.</p>
+    <div class="report-section-header">
+      <h3 class="h4">Custom Report</h3>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="form-group">
+          <label class="control-label" for="streaming-start-date">Start date</label>
+          <div class="form-inline">
+            <select class="form-control input-sm" id="streaming-start-date"
+              ng-options="opt.name for opt in vm.dateRangeOptions"
+              ng-model="vm.selectedDateRange[2]"
+              ng-change="vm.resetReportSubmitted('streaming')"></select>
+          </div>
+        </div>
+        <fieldset class="form-group">
+          <legend>Locations</legend>
+          <div class="location-select">
+            <label class="radio-inline filterlabel" for="lr3">
+              <input id="lr3" name="locationgroup2" type="radio" value="all"
+                ng-model="vm.locationOptions[2]"
+                ng-change="vm.resetReportSubmitted('streaming')">
+              All
+            </label>
+            <label class="radio-inline filterlabel" for="lr4">
+              <input id="lr4" type="radio" name="locationgroup2" value="select"
+                ng-model="vm.locationOptions[2]"
+                ng-change="vm.resetReportSubmitted('streaming')">
+              Selected
+            </label>
+            <div class="location-picker" ng-if="vm.locationOptions[2] === 'select'">
+              <ol class="nya-bs-select"
+                ng-model="vm.selectedLocations[2]"
+                multiple
+                data-live-search="true"
+                title="Select Locations"
+                selected-text-format="count > 5"
+                actions-box="true"
+                size="10">
+                <li nya-bs-option="loc in ::vm.locations" data-value="::loc.username">
+                  <a><span ng-bind="::loc.username"></span> <span class="fa fa-check check-mark"></span></a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </fieldset>
+        <button class="btn btn-primary"
+          ng-disabled="!vm.me.user.email || vm.reports.streaming.submitted || vm.reports.streaming.loading"
+          ng-click="vm.generateStreamingReport()">
+          <i class="fa fa-paper-plane fa-push-right"></i>Generate
+        </button>
+        <span class="report-loading" ng-show="vm.reports.streaming.loading"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+      </div>
+    </div>
+    <div class="report-section-header">
+      <h3 class="h4">Receive Automated Reports<i class="fa fa-question-circle fa-push-left-lg" tooltip="Schedule the generation of a Detailed Streaming Hours report that is delivered to your location email address as well as any additional email recipients that you specify."></i></h3>
+      <p class="text-muted">Includes all locations. Custom report options do <em>not</em> apply to automated reports.</p>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <form name="streamingRecurringForm" novalidate ng-submit="vm.updateRecurringReport('streaming', streamingRecurringForm)">
+          <fieldset class="automated-report-opt-list">
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="streamingRecurringFrequency" type="checkbox" ng-model="vm.form.reports.streaming.recurring.daily.active">
+                    Daily
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each day around midnight. Includes data from the previous day."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.streaming.recurring.daily.active || (vm.form.reports.streaming.recurring.daily.active && vm.form.reports.streaming.recurring.daily.recipients.length)"
+                  ng-click="vm.addRecipient('streaming', 'daily', streamingRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.streaming.recurring.daily.active && vm.form.reports.streaming.recurring.daily.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.streaming.recurring.daily.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': streamingRecurringForm['streamingDailyRecipient' + $index].$invalid && streamingRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="streamingDailyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.streaming.recurring.daily.recipients[$index]"
+                        ng-change="streamingRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('streaming', 'daily', $index, streamingRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="streamingRecurringForm['streamingDailyRecipient' + $index].$error.required && streamingRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="streamingRecurringForm['streamingDailyRecipient' + $index].$error.email && streamingRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.streaming.recurring.daily.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('streaming', 'daily', streamingRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="streamingRecurringFrequency" type="checkbox" ng-model="vm.form.reports.streaming.recurring.weekly.active">
+                    Weekly
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each Sunday night. Includes data from the previous week."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.streaming.recurring.weekly.active || (vm.form.reports.streaming.recurring.weekly.active && vm.form.reports.streaming.recurring.weekly.recipients.length)"
+                  ng-click="vm.addRecipient('streaming', 'weekly', streamingRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.streaming.recurring.weekly.active && vm.form.reports.streaming.recurring.weekly.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.streaming.recurring.weekly.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': streamingRecurringForm['streamingWeeklyRecipient' + $index].$invalid && streamingRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="streamingWeeklyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.streaming.recurring.weekly.recipients[$index]"
+                        ng-change="streamingRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('streaming', 'weekly', $index, streamingRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="streamingRecurringForm['streamingWeeklyRecipient' + $index].$error.required && streamingRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="streamingRecurringForm['streamingWeeklyRecipient' + $index].$error.email && streamingRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.streaming.recurring.weekly.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('streaming', 'weekly', streamingRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+          <button class="btn btn-success" type="submit" ng-disabled="!vm.me.user.email || streamingRecurringForm.$pristine">
+            <i class="fa fa-cloud fa-push-right"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="report" ng-if="::entStatus.isEnterprise">
+    <h2 class="h3"><i class="fa fa-microphone fa-push-right"></i>Detailed Message Plays</h2>
+    <p>See the date and time each message played at your locations.</p>
+    <div class="report-section-header">
+      <h3 class="h4">Custom Report</h3>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="form-group">
+          <label class="control-label">Start date</label>
+          <div class="form-inline">
+            <select class="form-control input-sm"
+              ng-options="opt.name for opt in vm.dateRangeOptions"
+              ng-model="vm.selectedDateRange[3]"
+              ng-change="vm.resetReportSubmitted('message')"></select>
+          </div>
+        </div>
+        <fieldset class="form-group">
+          <legend>Locations</legend>
+          <div class="location-select">
+            <label class="radio-inline filterlabel" for="lr5">
+              <input id="lr5" name="locationgroup3" type="radio" value="all"
+                ng-model="vm.locationOptions[3]"
+                ng-change="vm.resetReportSubmitted('message')">
+              All
+            </label>
+            <label class="radio-inline filterlabel" for="lr6">
+              <input id="lr6" name="locationgroup3" type="radio" value="select"
+                ng-model="vm.locationOptions[3]"
+                ng-change="vm.resetReportSubmitted('message')">
+              Selected
+            </label>
+            <div class="location-picker" ng-if="vm.locationOptions[3] === 'select'">
+              <ol class="nya-bs-select"
+                ng-model="vm.selectedLocations[3]"
+                multiple
+                data-live-search="true"
+                title="Select Locations"
+                selected-text-format="count > 5"
+                actions-box="true"
+                size="10">
+                <li nya-bs-option="loc in ::vm.locations" data-value="::loc.username">
+                  <a><span ng-bind="::loc.username"></span> <span class="fa fa-check check-mark"></span></a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </fieldset>
+        <button class="btn btn-primary"
+          ng-disabled="!vm.me.user.email || vm.reports.message.submitted || vm.reports.message.loading"
+          ng-click="vm.generateMessageReport()">
+          <i class="fa fa-paper-plane fa-push-right"></i>Generate
+        </button>
+        <span class="report-loading" ng-show="vm.reports.message.loading"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+      </div>
+    </div>
+    <div class="report-section-header">
+      <h3 class="h4">Receive Automated Reports<i class="fa fa-question-circle fa-push-left-lg" tooltip="Schedule the generation of a Detailed Message Plays report that is delivered to your location email address as well as any additional email recipients that you specify."></i></h3>
+      <p class="text-muted">Includes all locations. Custom report options do <em>not</em> apply to automated reports.</p>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <form name="messageRecurringForm" novalidate ng-submit="vm.updateRecurringReport('message', messageRecurringForm)">
+          <fieldset class="automated-report-opt-list">
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="messageRecurringFrequency" type="checkbox" ng-model="vm.form.reports.message.recurring.daily.active">
+                    Daily
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each day around midnight. Includes data from the previous day."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.message.recurring.daily.active || (vm.form.reports.message.recurring.daily.active && vm.form.reports.message.recurring.daily.recipients.length)"
+                  ng-click="vm.addRecipient('message', 'daily', messageRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.message.recurring.daily.active && vm.form.reports.message.recurring.daily.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.message.recurring.daily.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': messageRecurringForm['messageDailyRecipient' + $index].$invalid && messageRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="messageDailyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.message.recurring.daily.recipients[$index]"
+                        ng-change="messageRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('message', 'daily', $index, messageRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="messageRecurringForm['messageDailyRecipient' + $index].$error.required && messageRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="messageRecurringForm['messageDailyRecipient' + $index].$error.email && messageRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.message.recurring.daily.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('message', 'daily', messageRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+            <div class="row">
+              <div class="col-sm-4 col-md-3">
+                <div class="checkbox automated-report-opt">
+                  <label>
+                    <input name="messageRecurringFrequency" type="checkbox" ng-model="vm.form.reports.message.recurring.weekly.active">
+                    Weekly
+                  </label>
+                  <i class="fa fa-question-circle" tooltip="Sent each Sunday night. Includes data from the previous week."></i>
+                </div>
+              </div>
+              <div class="col-sm-8 col-md-9">
+                <button class="btn btn-link add-recipients" type="button"
+                  ng-hide="!vm.form.reports.message.recurring.weekly.active || (vm.form.reports.message.recurring.weekly.active && vm.form.reports.message.recurring.weekly.recipients.length)"
+                  ng-click="vm.addRecipient('message', 'weekly', messageRecurringForm)">
+                  <i class="fa fa-plus fa-push-right"></i>Add Additional Email Recipients
+                </button>
+              </div>
+            </div>
+            <fieldset class="report-add-recipients" ng-show="vm.form.reports.message.recurring.weekly.active && vm.form.reports.message.recurring.weekly.recipients.length">
+              <legend>Additional Email Recipients</legend>
+              <div class="row">
+                <div class="col-sm-6 col-lg-4" ng-repeat="recipient in vm.form.reports.message.recurring.weekly.recipients track by $index">
+                  <div class="form-group" ng-class="{ 'has-error': messageRecurringForm['messageWeeklyRecipient' + $index].$invalid && messageRecurringForm.$submitted }">
+                    <div class="input-group">
+                      <input class="form-control" type="email" required
+                        ng-attr-name="messageWeeklyRecipient{{$index}}"
+                        ng-attr-placeholder="Email address #{{::$index + 1}}"
+                        ng-model="vm.form.reports.message.recurring.weekly.recipients[$index]"
+                        ng-change="messageRecurringForm.$setDirty()">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" title="Remove recipient" ng-click="vm.removeRecipient('message', 'weekly', $index, messageRecurringForm)">
+                          <i class="fa fa-close"></i>
+                        </button>
+                      </span>
+                    </div>
+                    <span class="help-block" ng-show="messageRecurringForm['messageWeeklyRecipient' + $index].$error.required && messageRecurringForm.$submitted">Required</span>
+                    <span class="help-block" ng-show="messageRecurringForm['messageWeeklyRecipient' + $index].$error.email && messageRecurringForm.$submitted">Invalid email address</span>                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-4" ng-show="vm.form.reports.message.recurring.weekly.recipients.length < 4">
+                  <button class="btn btn-link" type="button" ng-click="vm.addRecipient('message', 'weekly', messageRecurringForm)">
+                    <i class="fa fa-plus fa-push-right"></i>Add
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </fieldset>
+          <button class="btn btn-success" type="submit" ng-disabled="!vm.me.user.email || messageRecurringForm.$pristine">
+            <i class="fa fa-cloud fa-push-right"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</div>

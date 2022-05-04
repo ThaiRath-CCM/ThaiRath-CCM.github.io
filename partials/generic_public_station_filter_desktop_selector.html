@@ -1,0 +1,40 @@
+<div class="generic-public-station-filter-desktop-selector {{category}}">
+  <button class="filter-category" type="button" ng-click="toggleCategory({filterType: category})">
+    <i class="fa {{icon}}"></i> {{title}}
+    <i class="right chevron fa" ng-class="(filterStatus.drawerOpen[category] === true) ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+  </button>
+  <div class="sub-category" ng-class="{collapsed: filterStatus.drawerOpen[category] === false}">
+    <div class="reset-button" ng-if="showCategoryFilter === 'true'">
+      <span ng-click="resetFilter({filterType: category})">
+        Reset
+      </span>
+    </div>
+    <ul class="menu-list" ng-if="!filterStatus.expand[category]">
+      <li class="menu-list-item {{item.name}}"
+          ng-repeat="item in musicFilterList[category] | filter: { popular: true }"
+          ng-click="toggleFilter({filterType: category, filterId: item.id})"
+      >
+        <i class="fa" ng-class="checkFilter({filterType: category, filterId: item.id}) ? 'fa-check-square-o' : 'fa-square-o'"></i> {{item.name}}
+      </li>
+      <li class="btn btn-link expand"
+        ng-if="category !== 'rating'"
+        ng-click="toggleFilterExpansion({filterType: category})"
+      > Show {{musicFilterList[category].length - commonFilters[category].length}} more</li>
+      <li class="btn btn-link expand content-rating-info-btn" 
+        ng-if="category === 'rating'"
+        ng-click="showContentRatingsExplanation()"
+      ><i class="fa fa-question-circle"></i>Learn more</li>
+    </ul>
+    <ul class="menu-list" ng-if="filterStatus.expand[category]">
+      <li class="menu-list-item {{item.name}}"
+        ng-repeat="item in musicFilterList[category]"
+        ng-click="toggleFilter({filterType: category, filterId: item.id})"
+      >
+        <i class="fa" ng-class="checkFilter({filterType: category, filterId: item.id}) ? 'fa-check-square-o' : 'fa-square-o'"></i> {{item.name}}
+      </li>
+      <li class="btn btn-link expand"
+        ng-click="toggleFilterExpansion({filterType: category})"
+      >Show less</li>
+    </ul>
+  </div>
+</div>

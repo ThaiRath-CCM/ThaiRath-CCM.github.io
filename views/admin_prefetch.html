@@ -1,0 +1,97 @@
+<div class="row container prefetch-locations-container">
+  <h3 ng-if="!account.use_prefetch">This account is not configured for prefetch</h3>
+
+  <section class="prefetch" ng-if="::prefetch.enabled">
+    <h3>Media Download Window</h3>
+    <p>The window during which the CloudBox will retrieve media for the next 24 hours.</p>
+    <div class="prefetch-window">
+      <div class="prefetch-window-start" ng-hide="prefetch.saving">
+          <strong class="prefetch-window-label">Start time:</strong>
+          <span ng-if="prefetch.downloadWindow.startTime" ng-bind="prefetch.downloadWindow.startTime | date : 'shortTime'"></span>
+          <em ng-if="!prefetch.downloadWindow.startTime">Not set</em>
+      </div>
+      <div class="prefetch-window-end" ng-hide="prefetch.saving">
+          <strong class="prefetch-window-label">End time:</strong>
+          <span ng-if="prefetch.downloadWindow.stopTime" ng-bind="prefetch.downloadWindow.stopTime | date : 'shortTime'"></span>
+          <em class="small" ng-if="prefetch.downloadWindow.isStopTimeInNextDay">(next day)</em>
+          <em ng-if="!prefetch.downloadWindow.stopTime">Not set</em>
+      </div>
+      <em ng-show="prefetch.saving">Saving...</em>
+    </div>
+    <h4 class="notes-title">Notes</h4>
+    <ul class="list-no-indent">
+      <li>Start and end times represent the local time for each location.</li>
+      <li>Minimum download window is 1 hour.</li>
+      <li>If the window is not set, then downloads will start at midnight local time for each location.</li>
+      <li>If the download speed is 256Kbps, the CloudBox will only be able to download around as much music as the window specified.</li>
+    </ul>
+    <button class="btn btn-success" type="button"
+            ng-if="::prefetch.enabled"
+            ng-disabled="prefetch.saving"
+            ng-click="openMediaDownloadWindowModal()">
+      <i class="fa fa-pencil-square-o"></i> Edit
+    </button>
+
+    <h3>Per-location Configuration</h3>
+    <div class="location-default">
+      Default when adding a location:
+      <input type="radio" name="defaultgroup" id="defaultyes" ng-model="account.default_prefetch" ng-value=1 ng-change="saveLocationDefault()"></input>
+      <label for="defaultyes" class="filterlabel">Use prefetch</label>
+      <input type="radio" name="defaultgroup" id="defaultno" ng-model="account.default_prefetch" ng-value=0 ng-change="saveLocationDefault()"></input>
+      <label for="defaultno" class="filterlabel">Don't use prefetch</label>
+    </div>
+
+    <div ng-if="! dataready" class="prefetch-loader-container">
+      <i class="fa fa-spinner fa-spin"></i>
+    </div>
+    <div ng-if="dataready" class="location-list">
+      <div class="admin-toolbar header left-right">
+        <div class="left-side" >
+          <input ng-model="form.query" class="form-control filter" placeholder="Search Locations">
+        </div>
+      </div>
+      <div class="table-container locations-outer-container" ng-if="locations.length > 0">
+        <div>
+          <table class="table table-hover location-table">
+            <thead>
+              <tr>
+                <th class="sortable use-prefetch" ng-click="order('isPrefetch')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'isPrefetch'}">
+                    <span tooltip="Sort by prefetch value" tooltip-placement="top">Use Prefetch</span>
+                    <span class="fa " ng-if="orderBy === 'isPrefetch'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+                <th class="sortable location-name" ng-click="order('username')">
+                  <div class="header-cell" ng-class="{'order-by': orderBy === 'username'}">
+                    <span tooltip="Sort by Location Name" tooltip-placement="top">Location Name</span>
+                    <span class="fa " ng-if="orderBy === 'username'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr dir-paginate="loc in filteredLocations = (locations | filter: search() | orderBy: orderBy:reverse | itemsPerPage: pageSize) track by loc.userid">
+                <td class="note use-prefetch" data-title="Use Prefetch">
+                  <i class="fa" id="{{loc.userid}}" ng-click="toggleLocationOverride(loc)" ng-class="{'fa-toggle-on': loc.isPrefetch, 'fa-toggle-off': !loc.isPrefetch}"></i>
+                </td>
+                <td class="note location-name" data-title="Location Name">
+                  <div class="location-name"> {{loc.username}} </div>
+                </td>
+              </tr>
+              <tr ng-if="!filteredLocations.length" class="filter-results">
+                <td colspan="2">
+                  <strong>No locations match <span ng-if="form.query.length > 0">search term <em>{{form.query}}</em></span></strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pagination-controls" ng-show="locations.length">
+        <dir-pagination-controls max-size="5" on-page-change="pageChanged()"></dir-pagination-controls>
+      </div>
+    </div>
+  </section>
+</div>

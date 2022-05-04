@@ -1,0 +1,28 @@
+<form class="refresh-cloudbox-modal" novalidate ng-submit="">
+  <div class="modal-body text-center">
+    <div class="activate-success">
+      <i class="fa fa-4x fa-refresh animated zoom-in"></i>
+      <h2>Send Refresh to CloudBox</h2>
+      <div class="zone-info">
+        <ul>
+          <li class="info-item">
+            <span>Location: </span><strong ng-bind="::username" title="{{username}}"></strong>
+          </li>
+          <li class="info-item">
+            <span>Zone: </span><strong ng-bind="::streamname" title="{{streamname}}"></strong>
+          </li>
+        </ul>
+      </div>
+      <p>Refreshing a CloudBox will stop any other device currently playing on the zone.</p>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn submit btn-primary" type="submit" ng-click="refresh()">
+      Refresh Now
+    </button>
+    <button class="btn cancel" type="submit" ng-click="cancel()">
+      Cancel
+    </button>
+  </div>
+</form>

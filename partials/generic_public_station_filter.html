@@ -1,0 +1,150 @@
+<div class="generic-public-station-filter">
+  <div class="playlist-ccm-station-filter-foo">
+    <div class="filter-main-screen">
+      <div class="filter-menu">
+        <div class="heading">
+          <span class="reset-label">Filters</span>
+          <span class="separated btn btn-link filters-reset-btn" ng-click="resetFilter('all')">Reset</span>
+        </div>
+        <div class="filter-section" ng-click="toggleFilter('popular')">
+          <button ng-class="['filter-category', 'btn', 'btn-sm btn-default', { active: playlistStationFilter.popular } ]">
+            <i class="fa fa-star-o"></i> Most Popular
+          </button>
+        </div>
+        <div class="filter-section" ng-click="toggleFilter('newest')">
+          <button ng-class="['filter-category', 'btn', 'btn-sm btn-default', { active: playlistStationFilter.newest } ]">
+            <i class="fa fa-clock-o"></i> Newest Releases
+          </button>
+        </div>
+        <div class="filter-section secondary" ng-click="toggleFilter('pandora')">
+          <button ng-class="['filter-category', 'btn', 'btn-sm btn-default', 'pandora', { active: playlistStationFilter.pandora } ]">
+            <i></i>  <img src="../images/pandora.svg" />
+          </button>
+        </div>
+        <div class="filter-section secondary" ng-click="toggleFilter('favorites')">
+          <button ng-class="['filter-category', 'btn', 'btn-sm btn-default', { active: playlistStationFilter.favorites } ]">
+            <i class="fa fa-heart"></i> Favorites
+          </button>
+        </div>
+        <div class="filter-section secondary" ng-click="toggleFilter('recent')">
+          <button ng-class="['filter-category', 'btn', 'btn-sm btn-default', { active: playlistStationFilter.recent } ]">
+            <i class="fa fa-history"></i> Recent
+          </button>
+        </div>
+
+        <div class="filter-section category genre btn-group hidden-lg" ng-class="{open: playlistStationFilter.menuOpen.genre === true}">
+          <generic-public-station-filter-mobile-dropdown
+            category="genre"
+            title="Genre"
+            icon="fa-music"
+            collapse-all-toggle-category="collapseAllToggleCategory(filterType)"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            filter-status="playlistStationFilter"
+            music-filter-list="musicFilterList"
+          />
+        </div>
+        <div class="filter-section category genre btn-group visible-lg" ng-class="{open: playlistStationFilter.drawerOpen.genre === true}">
+          <generic-public-station-filter-desktop-selector
+            category="genre"
+            title="Genre"
+            icon="fa-music"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+          />
+        </div>
+
+
+
+        <div class="filter-section category mood btn-group hidden-lg" ng-class="{open: playlistStationFilter.menuOpen.mood === true}">
+          <generic-public-station-filter-mobile-dropdown
+            category="mood"
+            title="Mood"
+            icon="fa-bolt"
+            collapse-all-toggle-category="collapseAllToggleCategory(filterType)"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            filter-status="playlistStationFilter"
+            music-filter-list="musicFilterList"
+          />
+        </div>
+        <div class="filter-section category mood btn-group visible-lg" ng-class="{open: playlistStationFilter.drawerOpen.mood === true}">
+          <generic-public-station-filter-desktop-selector
+            category="mood"
+            title="Mood"
+            icon="fa-bolt"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+          />
+        </div>
+
+
+        <div class="filter-section category business btn-group hidden-lg" ng-class="{open: playlistStationFilter.menuOpen.business === true}">
+          <generic-public-station-filter-mobile-dropdown
+            category="business"
+            title="Business"
+            icon="fa-handshake-o"
+            collapse-all-toggle-category="collapseAllToggleCategory(filterType)"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            filter-status="playlistStationFilter"
+            music-filter-list="musicFilterList"
+          />
+        </div>
+        <div class="filter-section category business btn-group visible-lg" ng-class="{open: playlistStationFilter.drawerOpen.business === true}">
+          <generic-public-station-filter-desktop-selector
+            category="business"
+            title="Business Type"
+            icon="fa-handshake-o"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+          />
+        </div>
+
+
+        <div class="filter-section category rating btn-group hidden-lg" ng-class="{open: playlistStationFilter.menuOpen.rating === true}">
+          <generic-public-station-filter-mobile-dropdown
+            category="rating"
+            title="Rating"
+            icon="fa-balance-scale"
+            collapse-all-toggle-category="collapseAllToggleCategory(filterType)"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            filter-status="playlistStationFilter"
+            music-filter-list="musicFilterList"
+          />
+        </div>
+        <div class="filter-section category rating btn-group visible-lg" ng-class="{open: playlistStationFilter.drawerOpen.rating === true}">
+          <generic-public-station-filter-desktop-selector
+            category="rating"
+            title="Content Rating"
+            icon="fa-balance-scale"
+            check-filter="checkFilter(filterType, filterId)"
+            toggle-category="toggleCategory(filterType)"
+            toggle-filter="toggleFilter(filterType, filterId)"
+            toggle-filter-expansion="toggleFilterExpansion(filterType, filterId)"
+            show-content-ratings-explanation="showContentRatingsExplanation()"
+            music-filter-list="musicFilterList"
+            common-filters="commonFilters"
+            filter-status="playlistStationFilter"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

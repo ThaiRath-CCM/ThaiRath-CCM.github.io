@@ -1,0 +1,5 @@
+<div title="{{model.stationName}}: {{model.timeLabel }}">
+    <div class="handle left" ondrag="resize" ondragstart="startResizeStart" ondragstop="stopDrag" daypart-handle></div>
+    <div class="content" ng-mouseout="hideToolbar()" ng-mousedown="" ng-mouseup="" ondrag="drag" ondragstart="startDrag" ondragstop="stopDrag" daypart-handle stationid="{{model.stationId}}" title="{{model.stationName}}: {{model.timeLabel }}" ng-style="{backgroundColor: model.color}">{{model.stationLabel}} {{model.timeLabel}}</div>
+    <div class="handle right" ondrag="resize" ondragstart="startResizeStop" ondragstop="stopDrag" daypart-handle></div>
+</div>

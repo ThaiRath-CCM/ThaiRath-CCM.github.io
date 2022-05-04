@@ -1,0 +1,28 @@
+<form class="activate-form" novalidate ng-submit="vm.activateDaypart('now')">
+  <div class="modal-body text-center">
+    <div class="activate-success">
+      <i class="fa fa-4x fa-check-circle animated zoom-in"></i>
+      <p>Your daypart <strong ng-bind="::vm.daypart.name"></strong> has been successfully created!</p>
+      <p ng-if="::vm.isUserLimitedToCompanySelections">To play your daypart, an account or music administrator must approve it for company use.</p>
+    </div>
+    <div class="activate-actions">
+      <div ng-if="::!vm.isUserLimitedToCompanySelections">
+        <p>Would you like to play this daypart?</p>
+        <div class="play-opts">
+          <button class="btn btn-primary" type="submit">
+            <i class="fa fa-play fa-push-right"></i>Play Now
+          </button>
+          <button class="btn btn-primary" type="button" ng-click="vm.activateDaypart('next')">
+            <i class="fa fa-clock-o fa-push-right"></i>Play Next
+          </button>
+        </div>
+        <button class="btn btn-link" type="button" ng-click="vm.skipDaypartActivation()">
+          Maybe Later
+        </button>
+      </div>
+      <button class="btn btn-primary" type="button"
+              ng-if="::vm.isUserLimitedToCompanySelections"
+              ng-click="vm.skipDaypartActivation()">OK</button>
+    </div>
+  </div>
+</form>

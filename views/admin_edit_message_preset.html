@@ -1,0 +1,166 @@
+<div class="container edit-message-preset message-preset-container">
+  <div class="ccm-edit-screen-with-back-button message-preset-edit-screen">
+    <ol class="breadcrumb" aria-label="breadcrumb">
+      <li>
+        <a class="back-button" ng-click="clickBackButton()">
+          <i class="fa fa-long-arrow-left fa-push-right"></i>Back to Message Presets
+        </a>
+      </li>
+      <li class="pull-right">
+        <a href="https://help.cloudcovermusic.com/en/articles/455543-how-to-create-a-message-preset" target="_blank" rel="noopener">
+          <span class="hidden-xs">How to: Create a Message Preset<i class="fa fa-external-link fa-push-left"></i></span>
+          <span class="visible-xs"><i class="fa fa-question-circle"></i></span>
+        </a>
+      </li>
+    </ol>
+    <form name="vm.formController" ng-submit="submit()" novalidate>
+      <div class="admin-toolbar left-right header visible-xs">
+        <div class="left-side empty"></div>
+        <div class="right-side">
+          <button class="btn btn-success" type="submit" ng-disabled="vm.isSaving">
+            <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Preset'"></span>
+          </button>
+        </div>
+      </div>
+      <div class="edit-message-preset-header">
+        <div class="row">
+          <div class="col-sm-6 col-md-12">
+            <h1 class="has-tooltip"><span><span ng-bind="::isEditing ? 'Edit' : 'Create'"></span> Message Preset</span><i class="fa fa-question-circle" tooltip="Schedule messages to play at regular intervals between tunes." tooltip-placement="right"></i></h1>
+          </div>
+          <div class="col-sm-6 visible-sm text-right">
+            <button class="btn btn-success" type="submit" ng-disabled="vm.isSaving">
+              <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Preset'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="message-preset-form-header">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-9 col-lg-7">
+                <div class="form-group message-preset-name-form-group" ng-class="{ 'has-error': (vm.formController.$submitted && vm.formController.presetName.$invalid) || vm.formController.presetName.$error.unique }">
+                  <input class="form-control" name="presetName" type="text" placeholder="Message Preset Name" autocomplete="off" required
+                         ng-model="formData.name"
+                         ng-model-options="{ allowInvalid: true, debounce: 500 }"
+                         ng-change="changeForm()"
+                         ng-minlength="4"
+                         ng-maxlength="80"
+                         ng-pattern="/^[\w\-'():\\/,@&#+<>.\s]+$/"
+                         presetedit-unique="presetName"
+                         focus-input>
+                  <span class="name-validation-pending" ng-show="vm.formController.$pending"><i class="fa fa-lg fa-spinner fa-spin fa-push-left"></i></span>
+                  <div class="help-block validation-error"
+                       ng-show="(vm.formController.$submitted && vm.formController.presetName.$invalid) || vm.formController.presetName.$error.unique"
+                       ng-messages="vm.formController.presetName.$error">
+                    <span ng-message="required">The Message Preset name is required</span>
+                    <span ng-message="minlength">The Message Preset name must be at least 4 characters</span>
+                    <span ng-message="maxlength">The Message Preset name cannot be greater than 80 characters</span>
+                    <span ng-message="pattern">The Message Preset name can only contain: space, comma, a-Z, 0-9, ., :, /, \, @, &amp;, _, -, (, ), #, +, &lt;, &gt;</span>
+                    <span ng-message="unique">A Message Preset with the same name has already been created</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-lg-5">
+                <label class="checkbox-inline global-checkbox" ng-if="::allowSetGlobal">
+                  <input type="checkbox"
+                         ng-model="formData.isGlobal"
+                         ng-change="changeForm()"
+                         ng-true-value="1"
+                         ng-false-value="0">
+                    Global<i class="fa fa-question-circle"
+                             tooltip="Allow all locations to select this message preset"
+                             tooltip-placement="top"
+                             tooltip-append-to-body="true"></i>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 hidden-xs hidden-sm text-right">
+            <button class="btn btn-success" type="submit" ng-disabled="vm.isSaving">
+              <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Preset'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-6 col-lg-6">
+          <div class="playlists library">
+            <h2 class="message-preset-form-title">Your Message Library</h2>
+            <div class="form-group message-search">
+              <input class="form-control" placeholder="Search messages" ng-model="query" search-field>
+              <i class="fa fa-search"></i>
+            </div>
+            <div class="playlist-list">
+              <button class="list-group-item" type="button"
+                      ng-repeat="message in messages | filterAdminMessages: query as messageListResults"
+                      ng-class="{ 'message-added': messageAddedId === message.messageid }"
+                      ng-click="subscription.messages > formData.messages.length && addMessage(message)">
+                <span class="message-container">
+                  <span class="message-name" ng-bind="message.message_name"></span>
+                  <span class="message-preset-action pull-right">
+                    <i class="before-add fa fa-plus-circle"></i>
+                    <i class="after-add fa fa-check-circle"></i>
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div class="search-results-empty" ng-show="!messageListResults.length">
+              <i class="fa fa-search"></i>
+              No results
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-6">
+          <div class="added-messages">
+            <h2 class="message-preset-form-title">Your Message Preset</h2>
+            <div class="form-inline">
+              <div class="form-group message-frequency">
+                <label class="control-label" for="messageFrequency">Message Frequency: Song to Message Ratio</label>
+                <select class="form-control" id="messageFrequency"
+                        ng-model="formData.freq"
+                        ng-change="changeForm()"
+                        ng-options="value for value in freq"></select>
+              </div>
+            </div>
+            <div class="playlists live-messages">
+              <div class="content">
+                <ul dnd-list dnd-drop="callback({targetList: formData.messages, targetIndex: index})">
+                    <li class='part-block' ng-repeat="message in formData.messages track by $index"
+                        dnd-draggable="null" dnd-callback="onDropOfMessage(formData.messages, $index, targetList, targetIndex)">
+                      <div class="row">
+                        <div class="col-xs-8">
+                          <i class="fa fa-ellipsis-v drag-handle"></i>
+                          <span ng-bind="message.name"></span>
+                        </div>
+                        <div class="col-xs-4 text-right">
+                          <button class="btn btn-link btn-link-muted remove-message-btn" type="button"
+                                  ng-click="removeMessage($index)"
+                                  tooltip="Remove"
+                                  tooltip-placement="left">&times;</button>
+                        </div>
+                      </div>
+
+                  </li>
+                </ul>
+              </div>
+              <div class="no-selected-messages-container" ng-hide="formData.messages.length">
+                <div class="no-selected-messages">
+                  <i class="fa fa-2x fa-tasks"></i>
+                  No messages added
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center visible-xs visible-sm">
+        <button class="btn btn-success mobile-submit-btn" type="submit"
+                ng-disabled="vm.isSaving"
+                ng-click="onMobileFormSubmission()">
+          <i class="fa fa-check fa-push-right"></i><span ng-bind="::isEditing ? 'Save Changes' : 'Save Message Preset'"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

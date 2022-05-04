@@ -1,0 +1,58 @@
+<div class="stream-history-modal modal-body">
+  <div class="header-close-button" ng-click="cancel($event)">
+    <i class="fa fa-times-circle"></i>
+  </div>
+  <div class="modal-content">
+    <div ng-if="showSingle" class="thank-you-text">
+      <h1>Thank you</h1>
+      <p class="sub-text">Your trial registration is complete!</p>
+      <p>How-to videos can be found in our Support Tab.</p>
+      <p>Our <span class="strong-words">Song Removal</span>, <span class="strong-words">Mix Stations</span> and <span class="strong-words">Dayparting</span> features are the best in the industry. Please use them!</p>
+      <p>If you require technical assistance, please issue a support ticket or call our Support Team at <strong><a href="tel:1-844-422-6249">(844) 422-6249</a></strong>.</p>
+      <p>We are here to make the music at your business a <span class="strong-words">success!</span></p>
+    </div>
+  
+    <div ng-if="showMulti" class="thank-you-text">
+      <h1>Thank you</h1>
+      <p class="sub-text">Your trial registration is complete!</p>
+      <p>Streaming is licensed at the <strong>Location</strong> level. Login as the <strong>Location</strong> to stream music.</p>
+      <p>Our <span class="strong-words">Song Removal</span>, <span class="strong-words">Mix Stations</span> and <span class="strong-words">Dayparting</span> features are the best in the industry. Please use them!</p>
+      <p>If you require technical assistance, please issue a support ticket or call our Support Team at <strong><a href="tel:1-844-422-6249">(844) 422-6249</a></strong>.</p>
+      <p>Locations can be added after your trial ends or support can pull you out early. You are not billed for new locations until your monthly billing renews.</p>
+      <p>We are here to make the music at your business a <span class="strong-words">success!</span></p>
+    </div>
+   
+    <!--template for stream history-->
+    <div ng-if="showStream" class="stream-container">
+      <div ng-show="streamHistory.length">
+        <h4>Most Recently Streamed Songs</h4>
+        <div class="stream-row-container">
+          <ul>
+            <li class="stream-header">
+              <div class="stream-time">Date</div>
+              <div class="stream-song">Song</div>
+              <div class="stream-artist">Artist</div>
+              <div class="stream-station">Station</div>
+              <div class="stream-type">Type</div>
+              <!--<span class="stream-header">IP Address</span>-->
+              <div class="stream-device">Device</div>
+            </li>
+
+              <li ng-repeat="item in streamHistory" class="stream-row">
+                <div class="stream-time">{{item.time | date: 'short'}}</div>
+                <div class="stream-song">{{item.song || item.messageName}}</div>
+                <div class="stream-artist">{{item.artist || "-"}}</div>
+                <div class="stream-station">{{item.station || "-"}}</div>
+                <div class="stream-type">{{item.mediaType}}</div>
+                <div class="stream-device">{{item.device}}</div>
+              </li>
+          </ul>
+        </div>
+      </div>
+  
+      <div ng-hide="streamHistory.length">
+        <h4 class="no-stream-history">This zone has no recent stream history.</h4>
+      </div>
+    </div>
+  </div>
+</div>

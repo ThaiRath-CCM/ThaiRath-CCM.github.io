@@ -1,0 +1,128 @@
+<div class="row" ng-show='loading'>
+  <div class="col-md-12 block-unit loader-container">
+    <i class="fa fa-spinner fa-spin blue"></i>
+    <p><br>Loading your account, please wait...</p>
+  </div>
+</div>
+<div class="main-content-container" playlist-scroll ng-hide='loading' ng-class="{ disabled: disableMainContainer(), mobile: isMobile }">
+  <div class="header-toolbar" ng-class="{ trial: me.subscription.state === 'trial', 'sub-paused': subscriptionInfo.isPaused && me.subscription.state !== 'trial' }">
+    <div class="container">
+      <div class="trial-banner" ng-if="me.subscription.state === 'trial'">
+        <div class="trial-message">Your Free Trial Expires on {{me.subscription.trial_ends_at | date:'MM/dd/yy'}}</div>
+        <button class="btn btn-success trial-sign-up" ng-if="userPerms.isPaymentAdmin" ng-click="openBillingForm()">Subscribe Now</button>
+        <div class="admin-required" ng-if="!userPerms.isPaymentAdmin">Log in as an Admin to subscribe</div>
+      </div>
+      <div class="sub-paused-banner" ng-if="me.subscription.state !== 'trial' && subscriptionInfo.isPaused">
+        <div class="sub-paused-message">Streaming has been suspended for your account and will resume on <span ng-bind="me.subscription.pause_ends_at | date: 'MM/dd/yy'"></span></div>
+      </div>
+      <div class="header-toolbar-content">
+        <div class="nav-no-collapse header-toolbar-nav">
+          <div class="logo"></div>
+          <div class="small-device account-menu toggle-menu" on-document-click="hideMenu()" ng-click="toggleMenu($event)" ng-class="{collapse: isNavCollapsed}">
+            <div class="menu-icon"><i class="fa fa-bars"></i></div>
+            <ul>
+              <li ng-if="isMobile" class="download-app">
+                <a class="download-app" target="_blank" href="{{mobileDownloadUrl}}">
+                  Download Mobile App
+                </a>
+              </li>
+              <li>
+                <a class="admin-panel-button" href="javascript:void(0)" ng-click="changelocation('/admin/zones'); hideMenu();" ng-class="{selected: mainMenuSelection === 'account'}">
+                  <span class="text">Account</span>
+                </a>
+              </li>
+              <li ng-if="userPerms.canPlayMusic && userPerms.canSelectMusic">
+                <a class="music-button" href="javascript:void(0)" ng-click="changelocation('/playlists/public'); hideMenu();" ng-class="{selected: mainMenuSelection === 'music'}">
+                  <span class="text">Music</span>
+                </a>
+              </li>
+              <li>
+                <a class="message-button" ng-if="messagesAllowed && canPlayMusic" href="javascript:void(0)" ng-click="changelocation('/playlists/messaging'); hideMenu();" ng-class="{selected: mainMenuSelection === 'messaging'}">
+                  <span class="text">Messaging</span>
+                </a>
+                <a class="message-button" ng-if="!messageQuantityAllowedPerPreset" href="javascript:void(0)" ng-click="changelocation('/playlists/messageUpgrade'); hideMenu();" ng-class="{selected: mainMenuSelection === 'messaging'}">
+                  <span class="text">Messaging</span>
+                </a>
+              </li>
+              <li>
+                <a class="logout-button" href="javascript:void(0)" ng-click="changelocation('/logout'); hideMenu();">
+                  <span class="text">Logout</span>
+                </a>
+              </li>
+              <li>
+                <a class="password-change-button" href="javascript:void(0)" ng-click="changelocation('/password'); hideMenu();">
+                  <span class="text">Change Password</span>
+                </a>
+              </li>
+              <li>
+                <a class="help-button" target="_blank" href="https://help.cloudcovermusic.com" ng-click="hideMenu()">
+                  <span class="text">Help</span>
+                </a>
+              </li>
+              <li>
+                <a class="upgrade" target="_blank" href="javascript:void(0)" ng-if="userPerms.isPaymentAdmin && !messageQuantityAllowedPerPreset" ng-click="changelocation('/admin/billing/upgrade'); hideMenu();">
+                  <span class="text">Upgrade</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="small-device username account-menu toggle-menu" on-document-click="hideMenu()" ng-click="toggleMenu($event)">{{me.user.username}}</div>
+          <div class="large-device header-toolbar-icons">
+            <div class="icon-container">
+              <div class="left-bar">
+                <a class="admin-panel-button" href="javascript:void(0)" ng-click="changelocation('/admin/zones');" ng-class="{selected: mainMenuSelection === 'account'}"><span class="text">Account</span></a>
+                <a class="music-button" ng-if="userPerms.canPlayMusic && userPerms.canSelectMusic" href="javascript:void(0)" ng-click="changelocation('/playlists/public');" ng-class="{selected: mainMenuSelection === 'music'}"><span class="text">Music</span></a>
+                <a class="message-button" ng-if="messagesAllowed && userPerms.canPlayMusic" href="javascript:void(0)" ng-click="changelocation('/playlists/messaging');" ng-class="{selected: mainMenuSelection === 'messaging'}"><span class="text">Messaging</span></a>
+                <a class="message-button" ng-if="!messageQuantityAllowedPerPreset" href="javascript:void(0)" ng-click="changelocation('/playlists/messageUpgrade');" ng-class="{selected: mainMenuSelection === 'messaging'}"><span class="text">Messaging</span></a>
+              </div>
+              <div class="right-bar">
+                <span class="label label-danger impersonation-label" ng-if="::me.impersonation">Impersonating via <span ng-bind="me.impersonation.impersonatorUsername"></span></span>
+                <div class="upgrade" ng-if="userPerms.isPaymentAdmin && !messageQuantityAllowedPerPreset">
+                  <a href="" ng-click="changelocation('/admin/billing/upgrade')">Upgrade</a>
+                </div>
+                <div class="large-device account-menu toggle-menu" on-document-click="hideMenu()" ng-click="toggleMenu($event)">
+                  <ul>
+                    <li class="drop-menu toggle-menu" ng-class="{touch: !isNavCollapsed}">{{me.user.username}}
+                      <ul ng-class="{collapse: isNavCollapsed, mobile: isMobile}">
+                        <li ng-if="isMobile" class="download-app">
+                          <a class="download-app" target="_blank" href="{{mobileDownloadUrl}}">
+                            Download Mobile App
+                          </a>
+                        </li>
+                        <li><a class="logout-button" ui-sref="loggedout.logout">Logout</a></li>
+                        <li><a class="password-change-button" ui-sref="account.password">Change Password</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+                <a class="help-button" tooltip-placement="bottom" tooltip="Help Center" target="_blank" href="https://help.cloudcovermusic.com"  ><i class="fa fa-question-circle"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="account-content-container" ng-class="{ trial: me.subscription.state === 'trial', 'sub-paused': subscriptionInfo.isPaused && me.subscription.state !== 'trial' }">
+    <div class="account-content-shadow">
+      <div class='container account-content-view'>
+        <div ui-view></div>
+      </div>
+    </div>
+  </div>
+  <player class="player"></player>
+</div>
+
+<div modal class="modal" ng-class="{mobile: isMobile}"></div>
+<div message-scheduler-popup-toolbar></div>
+<div daypart-popup-toolbar></div>
+<div volume-control></div>
+<div class="trial-expiration form-container" ng-if="trialExpired || convertingTrial || orderingBox || subscriptionExpired || updatingCard">
+  <div class="account-creation-form" trial-conversion></div>
+</div>
+
+<a class="intercom-launcher intercom-booted" ng-class="{'intercom-open': intercomLauncherOpen, 'mobile-media-toolbar-open': mobileMediaToolbarOpen, mobile: isMobile}" href="mailto:{{intercomAppId}}@incoming.intercom.io">
+  <div class="intercom-icon-close"></div>
+  <div class="intercom-icon-open"></div>
+  <span class="intercom-unread-count"></span>
+</a>

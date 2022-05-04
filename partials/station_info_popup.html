@@ -1,0 +1,23 @@
+<div class="station-info modal-body" ng-class="{ mobile: isMobile }">
+  <div class="header-close-button" ng-click="cancel()">
+    <i class="fa fa-times-circle"></i>
+  </div>
+  <div class="station-info-content">
+    <h2><span class="align-middle" ng-bind="::stationInfo.name"></span> <content-rating-icon rating-id="{{stationInfo.content_rating_id}}" show-tooltip="true" tooltip-placement="bottom" show-details="true"></content-rating-icon></h2>
+    <h3 ng-bind="::stationInfo.subname"></h3>
+    <h4>Station Description</h4>
+    <p ng-bind="::stationInfo.description"></p>
+    <h4>Featured Artists</h4>
+    <p ng-bind="::stationInfo.featured_artists"></p>
+    <h4>Energy</h4>
+    <p ng-bind="::stationInfo.energy"></p>
+    <div>
+      <i class="play-button fa fa-play-circle"
+         ng-class="{ disabled: playing }"
+         ng-click="play($event, stationInfo)"><span>Preview Here</span></i>
+      <i class="play-button fa fa-pause-circle"
+         ng-class="{ disabled: !playing }"
+         ng-click="stop($event, stationInfo)"><span>Stop</span></i>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="row container devices-container">
+  <section>
+    <h3 ng-class="{searchHidden: (deviceList.length < 1)}">Third-Party Devices</h3>
+    <div>Manage integrated devices from a third party provider, such as digital signage</div>
+    <div class="table-list">
+      <div class="devices">
+        <div class="admin-toolbar header left-right">
+          <div class="left-side api-key" ng-class="{searchHidden: (deviceList.length < 1)}">
+            <div class="mass-nav">
+              <div ng-show="userPerms.isAccountOwner" class="btn btn-success btn-api-key" ng-click="showAPIDialog()">Get API Key</div>
+              <div ng-show="userPerms.isAccountOwner" class="btn btn-default btn-manage-api-keys" ng-click="manageAPIKeys()">Manage API Keys</div>
+            </div>
+          </div>
+          <div class="right-side" ng-if="deviceList.length > 0">
+            <input ng-model="form.query" class="form-control filter" placeholder="Search Devices">
+          </div>
+        </div>
+        <p ng-show="deviceList.length < 1">You don't have any third-party integrated devices yet.</p>
+        <div class="table-container devices-outer-container" ng-show="deviceList.length > 0">
+          <div>
+            <table class="table table-hover device-table">
+              <thead>
+                <tr>
+                  <th class="sortable device-name" ng-click="order('name')">
+                    <div class="header-cell" ng-class="{'order-by': orderBy === 'name'}">
+                      <span tooltip="Sort by Device Name" tooltip-placement="top">Device Name</span>
+                      <span class="fa " ng-if="orderBy === 'name'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                    </div>
+                  </th>
+                  <th class="sortable deviceid" ng-click="order('uuid')">
+                    <div class="header-cell" ng-class="{'order-by': orderBy === 'uuid'}">
+                      <span tooltip="Sort by Device ID" tooltip-placement="top">Device ID</span>
+                      <span class="fa " ng-if="orderBy === 'uuid'" ng-class="{ 'fa-caret-down': reverse, 'fa-caret-up': !reverse }"></span>
+                    </div>
+                  </th>
+                  <th class="username">
+                    <div class="header-cell">
+                      <span>Location</span>
+                    </div>
+                  </th>
+                  <th class="streamname">
+                    <div class="header-cell">
+                      <span>Zone</span>
+                    </div>
+                  </th>
+                  <th class="sortable action">
+                    <div class="header-cell">
+                      <span>Edit</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr dir-paginate="device in filteredDevices = (deviceList | filter: search() | orderBy:orderBy:reverse | itemsPerPage: pageSize) track by device.deviceid">
+                  <td class="note device-name" data-title="Device Name">
+                    <div class="device-name">
+                      {{device.name}}
+                    </div>
+                  </td>
+                  <td class="note deviceid" data-title="Device ID">
+                    <div class="device-id">
+                      {{device.uuid}}
+                    </div>
+                  </td>
+                  <td class="note location" data-title="Location">
+                    <div class="location-name">
+                      {{locations[device.userid]}}
+                    </div>
+                  </td>
+                  <td class="note streamname" data-title="Zone">
+                    <div class="streamname-name">
+                      {{streams[device.userid][device.streamid]}}
+                    </div>
+                  </td>
+                  <td class="actions">
+                    <div class="user edit-actions">
+                      <a href=""
+                      class="btn btn-default action-button"
+                      ng-click="editDevice(device)"
+                      >
+                        <i class="fa fa-pencil"></i>
+                        <span>Edit</span>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr ng-if="!filteredDevices.length" class="filter-results">
+                  <td colspan="6">
+                    <strong>No devices found <span ng-if="form.query.length > 0">for search term <em>{{form.query}}</em></span></strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="pagination-controls" ng-show="filteredDevices.length">
+          <dir-pagination-controls max-size="5" on-page-change="pageChanged()"></dir-pagination-controls>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

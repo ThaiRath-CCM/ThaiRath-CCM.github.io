@@ -1,0 +1,16 @@
+<div class="logout-container sonos">
+  <div class="login-background"></div>
+  <div class='logout-header-wrapper'>
+    <div class="logo"></div>
+  </div>
+  <h1>Sonos</h1>
+  <div class='container' ui-view>
+
+  </div>
+
+  <a class="intercom-launcher intercom-booted" ng-class="{'intercom-open': intercomLauncherOpen, 'mobile-media-toolbar-open': mobileMediaToolbarOpen, mobile: isMobile}" href="mailto:{{intercomAppId}}@incoming.intercom.io">
+    <div class="intercom-icon-close"></div>
+    <div class="intercom-icon-open"></div>
+    <span class="intercom-unread-count"></span>
+  </a>
+</div>
