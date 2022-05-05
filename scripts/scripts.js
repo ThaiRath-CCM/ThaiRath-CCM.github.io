@@ -20835,10 +20835,10 @@ app.factory('api',['$http', '$cookies', 'base64', '$q', '$location', '$state', '
       postArtistRadioFeedback: function (userId, feedback) {
         var body = {
           operation: feedback.operation,
+          streamId: feedback.streamId,
           contextId: feedback.contextId,
           targetId: feedback.targetId,
           trackToken: feedback.trackToken,
-          deviceUuid: $cookies.get('Device'),
           value: feedback.value
         };
         return $http.post(this.root + '/artistRadio/' + userId + '/feedback', body)
@@ -32600,6 +32600,7 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
         scope.currentMedia.feedbackValue = value;
         var command = {
           operation: operation,
+          streamId: scope.selectedStream.streamid,
           contextId: media.stationId,
           targetId: 'TR:' + media.mediaid,
           trackToken: media.trackToken,
