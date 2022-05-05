@@ -6278,7 +6278,7 @@ c(a.element).is("option")?(a.element.selected=!1,void this.$element.trigger("cha
 
 angular.module('config', [])
 
-.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-4',debug:true,apiUrl:'https://api-dev-c.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:false,artistRadio:true}})
+.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_environment',version:'5.4.40-4',debug:true,apiUrl:'http://localhost:8888',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:false,artistRadio:true}})
 
 ;
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#Polyfill
@@ -6543,7 +6543,7 @@ var BrowserDetect = {
       return navigator.userAgent.match(/IEMobile/i);
     },
     any: function() {
-      return !BrowserDetect.digitalSignage() && (this.Android() || this.BlackBerry() || this.iOS() || this.Opera() || this.Windows());
+      return false; !BrowserDetect.digitalSignage() && (this.Android() || this.BlackBerry() || this.iOS() || this.Opera() || this.Windows());
     }
   },
 
