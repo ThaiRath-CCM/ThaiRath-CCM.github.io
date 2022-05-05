@@ -33002,13 +33002,20 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
               userid: scope.api.userObject.user.userid,
               custid: scope.api.userObject.user.custid
             };
-            deviceCommand.skipDevice(device, deviceCommandCallback);
-            // Update "now playing" sooner than normal
-            $timeout(function() {
+            if(scope.selectedStream.music_type === 'pandoraradio') {
               getMediaPlayingForStream(function(mediaInfo) {
                 if (mediaInfo) setMediaInfo(mediaInfo.streamingMedia);
+                deviceCommand.skipDevice(device, deviceCommandCallback);
               });
-            }, 3000);
+            } else {
+              deviceCommand.skipDevice(device, deviceCommandCallback);
+              // Update "now playing" sooner than normal
+              $timeout(function() {
+                getMediaPlayingForStream(function(mediaInfo) {
+                  if (mediaInfo) setMediaInfo(mediaInfo.streamingMedia);
+                });
+              }, 3000);
+            }
           }
         });
       }
