@@ -6543,7 +6543,7 @@ var BrowserDetect = {
       return navigator.userAgent.match(/IEMobile/i);
     },
     any: function() {
-      return false; // !BrowserDetect.digitalSignage() && (this.Android() || this.BlackBerry() || this.iOS() || this.Opera() || this.Windows());
+      return !BrowserDetect.digitalSignage() && (this.Android() || this.BlackBerry() || this.iOS() || this.Opera() || this.Windows());
     }
   },
 
@@ -16322,27 +16322,9 @@ app.controller('ArtistRadioController', ['$scope', '$rootScope', 'api', 'streamU
       musicSelection.setSelection('pandoraradio', station.Id, station.Name, 'now', function (succeeded, error) {
         console.log('play started');
       });
-      // if (station.id) {
-      //   api.postArtistRadioStation($scope.userId, station.id, {command: 'play'})
-      //     .then(function (result) {
-      //       var song = result.setSource.current;
-      //       $scope.playArtistRadio(station, song);
-      //       $scope.skipIndex = 0;
-      //       api.postArtistRadioStation($scope.userId, station.id, {command: 'setStarted', index: $scope.skipIndex });
-      //     });
-      // }
     };
 
-    // $scope.skip = function (station) {
-    //   if (station.id) {
-    //     api.postArtistRadioStation($scope.userId, station.id, {command: 'skip', elapsedTime: 10, index: $scope.skipIndex++ })
-    //       .then(function (result) {
-    //         var song = result.skip.current;
-    //         $scope.playArtistRadio(station, song);
-    //         api.postArtistRadioStation($scope.userId, station.id, {command: 'setStarted', index: $scope.skipIndex });
-    //       });
-    //   }
-    // };
+
 
   }
 ]);
@@ -32145,10 +32127,6 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
           "station": media.station
         });
         sendDeviceUpdate();
-
-        // if(media.index) {
-        //   scope.api.postArtistRadioStation(scope.me.user.userid, media.stationId, {command: 'setStarted', index: media.index});
-        // }
 
         // eventually we might have SQS messages handling message_preset
         // But until we do, we're updating preset selection here.

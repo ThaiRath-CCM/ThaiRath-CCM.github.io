@@ -49,7 +49,7 @@
           <i class="fa fa-step-forward"></i>
         </a>
         <a class="btn btn-primary btn-sm like-btn"
-          ng-class="{ disabled: cannotLikeCurrentMedia(), active: currentMedia.feedbackValue == 'UP' }"
+          ng-class="{ disabled: cannotLikeCurrentMedia(), active: mediaInfo.liked || currentMedia.feedbackValue == 'UP' }"
           ng-click="toggleSongLike()"
           tooltip="{{likeBtnTitle}}"
           tooltip-placement="top"
@@ -93,7 +93,7 @@
           <i class="fa fa-step-forward"></i>
         </a>
         <a class="btn btn-primary btn-sm like-btn"
-          ng-class="{ disabled: cannotLikeCurrentMedia(), active: mediaInfo.liked }"
+          ng-class="{ disabled: cannotLikeCurrentMedia(), active: mediaInfo.liked || currentMedia.feedbackValue == 'UP' }"
           ng-click="toggleSongLike()"
           tooltip="{{likeBtnTitle}}"
           tooltip-placement="top"
