@@ -27,6 +27,7 @@
                           title="Preview Song"
                           play-button
                           current-media="currentMedia"
+                          ng-if="song.uri"
                           ng-click="previewSong($event, song)">
                   </button>
                   <div class="timestamp">{{song.timestamp.date}}</div>
@@ -35,7 +36,7 @@
               </td>
               <td class="stream-content-song metadata">
                 <div class="stream-content-metadata">
-                  <div class="stream-content-art" ng-style="::{'background-image': 'url(' + song.album.thumb_url + ')'}"></div>
+                  <div class="stream-content-art" ng-style="::{{song.thumbStyle}}"></div>
                   <div class="stream-content-song-details">
                     <span class="title">{{song.song}}</span>
                     <span class="albumartist">{{song.artist}}</span>

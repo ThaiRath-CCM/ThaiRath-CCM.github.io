@@ -6278,7 +6278,7 @@ c(a.element).is("option")?(a.element.selected=!1,void this.$element.trigger("cha
 
 angular.module('config', [])
 
-.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-4',debug:true,apiUrl:'https://api-dev-c.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:false,artistRadio:true}})
+.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-14',debug:true,apiUrl:'https://api-dev-c.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:false,artistRadio:true}})
 
 ;
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#Polyfill
@@ -12348,37 +12348,12 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
 
     var getActiveAccountStreams = function() {
       var devicesOnPage = [];
-      var streamsOnSonos = [];
       var activeStreams = [];
       for (var i = 0; i < $scope.streams.length; i++) {
-        if ($scope.streams[i].devicetype === 'sonos') {
-          streamsOnSonos.push($scope.streams[i].streamid);
-        }
         if ($scope.streams[i].deviceid) {
           devicesOnPage.push($scope.streams[i].deviceid);
         }
       }
-
-      var getActiveStreamsForSonos = function() {
-        if (streamsOnSonos.length > 0) {
-          api.getStreamsSubsetWithDevice(streamsOnSonos, function(result) {
-            if (result.songs) {
-              for (var i = 0; i < streamsOnSonos.length; i++) {
-                if (result.songs[streamsOnSonos[i]]) {
-                  activeStreams.push(streamsOnSonos[i]);
-                }
-              }
-            }
-            setDeviceDetailsForStream(activeStreams);
-          }, function(err) {
-            console.warn('Error calling api.getStreamsSubsetWithDevice, err: ', err);
-            setDeviceDetailsForStream(activeStreams);
-          });
-        } else {
-          // No streams on Sonos
-          setDeviceDetailsForStream(activeStreams);
-        }
-      };
 
       if (devicesOnPage.length > 0) {
         // Get device state for the devices we can get
@@ -12388,26 +12363,14 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
               results.DeviceState.forEach(function (devState) {
                 if (devState.streamid && moment().diff(moment(devState.lastUpdate), 'minutes') <= 10 && devState.state === "playing") {
                   activeStreams.push(devState.streamid);
-
-                  // Don't need to fetch streams from DB for devices we already got from Device State
-                  var idx = streamsOnSonos.indexOf(devState.streamid);
-                  if (idx >= 0) {
-                    streamsOnSonos.splice(idx, 1);
-                  }
                 }
               });
             }
-            getActiveStreamsForSonos();
+            setDeviceDetailsForStream(activeStreams);
           })
           .catch(function (err) {
             console.warn('Error calling api.getDeviceState, err: ', err);
-
-            // Device State request failed, proceed to get active streams on sonos
-            getActiveStreamsForSonos();
           });
-      } else {
-        //No devices on Page, proceed to get active streams on sonos
-        getActiveStreamsForSonos();
       }
     };
 
@@ -12502,30 +12465,17 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
 
     var getStreamPage = function(callback) {
       var devicesOnPage = [];
-      var streamsOnPage = [];
 
       var getRemainingStreams = function () {
-
-        // Get remaining entries not found in Device State
-        // TODO if we don't call this because we got everything from Device State, we won't get updates to poll rate.
-        if (streamsOnPage.length > 0) {
-          getStreamsFromDb(streamsOnPage, callback);
-        } else {
-
-          // If we didn't need to get remaining from api, still need to do this.
-          getActiveAccountStreams();
-          $scope.safeApply();
-          if (callback) {
-            callback(null);
-          }
+        getActiveAccountStreams();
+        $scope.safeApply();
+        if (callback) {
+          callback(null);
         }
       };
 
       // Only consider the streams on the page
       $scope.filteredUsers.forEach(function(item) {
-        if (item.deviceType === 'sonos') {
-          streamsOnPage.push(item.streamid);
-        }
         //var id = $scope.devices[item.streamid].deviceid;
         if (item.deviceid) devicesOnPage.push(item.deviceid);
       });
@@ -12547,12 +12497,6 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
                   }
 
                   mapDeviceStateDevice(devState.streamid, devState.device, devState.id);
-
-                  // Don't need to fetch streams from DB for devices we already got from Device State
-                  var idx = streamsOnPage.indexOf(devState.streamid);
-                  if (idx >= 0) {
-                    streamsOnPage.splice(idx, 1);
-                  }
 
                   if (devState.userid && devState.media.mediaid && devState.media.station) {
                     mediaLikes.push({
@@ -12736,7 +12680,7 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
     }, function () {
       $scope.selectedButton = '';
       $scope.selectedGroup = -1;
-      getStreamPage(null);
+      getStreamsFromDb($scope.selectedStreams);
       $scope.showSuccess(getSuccessMessage('region', selectedGroupName, breakdown.prefetchStreams.length, breakdown.nonPrefetchStreams.length));
       resetSelectButtons();
 
@@ -12768,7 +12712,7 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
     }, function () {
       $scope.selectedButton = '';
       $scope.selectedPreset = -2;
-      getStreamPage(null);
+      getStreamsFromDb($scope.selectedStreams);
       $scope.showSuccess(getSuccessMessage('message preset', selectedMessagePresetName, breakdown.prefetchStreams.length, breakdown.nonPrefetchStreams.length));
       resetSelectButtons();
 
@@ -12800,7 +12744,7 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
     }, function () {
       $scope.selectedButton = '';
       $scope.selectedSchedule = -2;
-      getStreamPage(null);
+      getStreamsFromDb($scope.selectedStreams);
       $scope.showSuccess(getSuccessMessage('message schedule', selectedMessageScheduleName, breakdown.prefetchStreams.length, breakdown.nonPrefetchStreams.length));
       resetSelectButtons();
 
@@ -12888,7 +12832,11 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
       }
       api.getGroups(function(groupResults) {
         api.getMusic(1).then(function(musicResult) {
-          allMusic = musicResult.public.concat(musicResult.mix, musicResult.dayparting);
+          if (musicResult.pandora) {
+            allMusic = musicResult.public.concat(musicResult.mix, musicResult.dayparting, musicResult.pandora);
+          } else {
+            allMusic = musicResult.public.concat(musicResult.mix, musicResult.dayparting);
+          }
           $scope.groups = groupResults.groups;
           refresher.cancelTimer();
           if (subscriptionInfo.messageQuantityAllowedPerPreset()) {
@@ -13649,7 +13597,11 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
   }
 
   function filterMusic (music) {
-    allMusic = music.public.concat(music.mix, music.dayparting);
+    if(music.pandora) {
+      allMusic = music.public.concat(music.mix, music.dayparting, music.pandora);
+    } else {
+      allMusic = music.public.concat(music.mix, music.dayparting);
+    }
     setupMusicDropdowns(music);
   }
 
@@ -14836,6 +14788,7 @@ app.controller('OrderDeviceCtrl', ['$scope', 'api', 'users', 'account', '$modal'
           song.timestamp.date = month + '-' + day + '-' + date.getFullYear();
           song.timestamp.time = hour + ':' + min + ' ' + meridian;
           song.album.thumb_url = song.album.thumb_url.replace('http:', 'https:');
+          song.thumbStyle = { 'background-image': 'url("' + song.album.thumb_url.replace('http:', 'https:') + '")' }; // handle pandora thumb url with special characters
 
           return song;
         });
@@ -15703,8 +15656,8 @@ app.controller('AdminUpgradeBillingCtrl', ['$scope', '$state', 'api', 'plansInfo
   }
 ]);
 
-app.controller('AdminCancelBillingCtrl', ['$scope', 'api', 'subscription', '$location', '$window', 'intercom',
-  function($scope, api, subscription, $location, $window, intercom) {
+app.controller('AdminCancelBillingCtrl', ['$scope', 'api', 'subscription', '$location', '$state', '$window', 'intercom',
+  function($scope, api, subscription, $location, $state, $window, intercom) {
     $scope.$parent.currentTab = 'billing';
     $scope.$parent.hideLoader();
     $scope.submitDisabled = true;
@@ -15808,11 +15761,8 @@ app.controller('AdminCancelBillingCtrl', ['$scope', 'api', 'subscription', '$loc
           "cancellation_notes": formdata.notes
         });
         $scope.showSuccess( 'Your request for cancellation has been received.\n You will receive an email within 24 hours for confirmation.');
-        // not sure why leaving out one of the redirects generates an error when billing page loads
         setTimeout(function() {
-          $location.path('/admin/billing');
-          $window.location.hash = '#/admin/billing';
-          $window.location.reload(true);
+          $state.go('account.admin.billing', null, { reload: true });
         }, 2000);
       }, function(err) {
         $scope.showError("Your cancelation was unsuccessful due to a system processing error.  Please contact Customer Support at (844) 422-6249.");
@@ -16126,7 +16076,7 @@ app.controller('ArtistRadioController', ['$scope', '$rootScope', 'api', 'streamU
     $scope.currentStation = '';
 
     $scope.updateCurrentStation = function (stream) {
-      if(stream && stream.music_type === 'pandoraradio') {
+      if(stream && stream.music_type === 'pandora') {
         var currentStation = $scope.stations.find(function (station) { return station.Id === stream.music_id; } );
         if(currentStation) {
           $scope.currentStation = currentStation.id;
@@ -16141,7 +16091,7 @@ app.controller('ArtistRadioController', ['$scope', '$rootScope', 'api', 'streamU
     };
     streamUpdateService.addListener($scope);
 
-    if (true) {
+    if ($scope.me.account.artist_radio === 1) {
       $scope.resultsLoading = true;
       api.getArtistRadioStations($scope.userId)
         .then(function (stationsInfo) {
@@ -16274,16 +16224,6 @@ app.controller('ArtistRadioController', ['$scope', '$rootScope', 'api', 'streamU
       }
     };
 
-
-    /*
-    These functions will need to be re-integrated once the player component is available
-     */
-
-
-    $scope.$on('resumeMedia', function() {
-      $scope.currentStation = '';
-    });
-
     $scope.onFeedback = function(event, data) {
       var feedback = {
         operation: data.value === data.media.feedbackValue ? 'removeFeedback' : 'setFeedback',
@@ -16298,32 +16238,17 @@ app.controller('ArtistRadioController', ['$scope', '$rootScope', 'api', 'streamU
         });
     };
 
-    $scope.playArtistRadio = function (station, song) {
-      $scope.currentStation = station.id;
-      console.log('playing track: ', song.track.id, song.track.name);
-      return $rootScope.$broadcast('playArtistRadio', {
-        id: song.track.id,
-        name: song.track.name,
-        artist: song.track.artist.name,
-        media_name: song.track.name,
-        media_station: station.name,
-        media_station_id: station.id,
-        imageUrl: song.track.art.artUrl,
-        description: 'song preview',
-        mediaType: 'song',
-        mediaUrl: song.audioUrl,
-        trackToken: song.trackToken,
-        feedbackValue: song.feedbackValue,
-        overrideDuration: song.track.duration
-      });
-    };
-
     $scope.playNow = function (station) {
-      musicSelection.setSelection('pandoraradio', station.Id, station.Name, 'now', function (succeeded, error) {
-        console.log('play started');
+      musicSelection.setSelection('pandora', station.Id, station.Name, 'now', function (success, error) {
+        if(!success) {
+          if(error.code === 'IncompatibleDevice') {
+            $scope.showError('Target device is not yet compatible with Artist Radio stations.');
+          } else {
+            $scope.showError('Unable to change music selection.  Error: ' + error.message);
+          }
+        }
       });
     };
-
 
 
   }
@@ -20788,7 +20713,6 @@ app.factory('api',['$http', '$cookies', 'base64', '$q', '$location', '$state', '
       },
 
       postArtistRadioStation: function (userId, stationId, command) {
-        command.deviceUuid = $cookies.get('Device');
         return $http.post(this.root + '/artistRadio/' + userId + '/stations/' + stationId, command)
           .then(function (response) {
             if (response.status === 200) {
@@ -20943,6 +20867,16 @@ app.factory('api',['$http', '$cookies', 'base64', '$q', '$location', '$state', '
               data.dayparting = data.dayparting.map(function (item) {
                 item.type = 'dayparting';
                 item.musicid = item.daypartingid;
+
+                return item;
+              });
+            }
+
+            if (data.pandora && data.pandora.length) {
+              data.pandora = data.pandora.map(function (item) {
+                item.type = 'pandora';
+                item.musicid = item.Id;
+                item.name = item.Name;
 
                 return item;
               });
@@ -22393,7 +22327,7 @@ app.factory('api',['$http', '$cookies', 'base64', '$q', '$location', '$state', '
           });
       },
 
-      getNextMedia: function (streamId, streamHistory, currentMedia) {
+      getNextMedia: function (streamId, streamHistory) {
         var url = this.root + '/streams/' + streamId + '/next-media';
         var data = {};
         var config = {};
@@ -22401,11 +22335,6 @@ app.factory('api',['$http', '$cookies', 'base64', '$q', '$location', '$state', '
         if (streamHistory && streamHistory.length > 0) {
           data.history = streamHistory;
         }
-
-        if (currentMedia !== undefined && currentMedia !== null) {
-          data.trackIndex = currentMedia.index;
-        }
-        data.deviceUuid = $cookies.get('Device');
 
         // 2021-02-19 rporczak -- This endpoint is authenticated on the API. From the client side, it was relying on the
         //  Authorization header being set in http.js's authorizationInjector. However, these cookie values do not exist
@@ -22450,21 +22379,24 @@ app.factory('api',['$http', '$cookies', 'base64', '$q', '$location', '$state', '
               media.daypart = data.song.daypart;
               media.mediaid = data.song.mediaid;
               media.mediaType = 'song';
-              media.mediaUrl = data.song.uri['mp4'].replace('http:', 'https:');
               media.imageUrl = data.album.thumb_url.replace('http:', 'https:');
               media.liked = data.song.liked;
-              media.trackIndex = data.song.trackIndex;
+
+              // { trackToken, stationId, feedbackValue } in data.song should only be defined in Pandora songs 
               media.trackToken = data.song.trackToken;
               media.stationId = data.song.stationId;
               media.feedbackValue = data.song.feedbackValue;
 
-              if (data.song.daypartid) {
+              if (data.song.trackToken) {
+                media.music_type = 'pandora';
+              } else if (data.song.daypartid) {
                 media.music_type = 'dayparting';
               } else if (data.song.mixid) {
                 media.music_type = 'mix';
               } else {
                 media.music_type = 'playlist';
               }
+              media.mediaUrl = data.song.uri[media.music_type !== 'pandora' && soundManager.canPlayMIME('audio/ogg') ? 'ogg' : 'mp4'].replace('http:', 'https:');
             } else if (data.message) {
               media.id = data.message.message_uuid;
               media.name = data.message.message_name;
@@ -30755,7 +30687,6 @@ function MediaWrapper(scope, media) {
   this.daypart = media.daypart;
   this.music_type = media.music_type;
   this.extra = media.extra;
-  this.trackIndex = media.trackIndex;
   this.trackToken = media.trackToken;
   this.stationId = media.stationId;
   this.feedbackValue = media.feedbackValue;
@@ -30781,9 +30712,6 @@ function MediaWrapper(scope, media) {
 
       mediaWrap.duration = this.duration;
       scope.safeApply();
-    },
-    onplay: function() {
-
     },
     onfinish: function() {
       if (scope.broadcast) {
@@ -30999,11 +30927,10 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
       scope.selectStreamIcon = '';
       scope.selectStreamLabel = 'Select Zone';
       scope.showStreamList = false;
-      scope.skipLimit = 600;
+      scope.skipLimit = 6;
       scope.skips = {};
       scope.toggleEnabled = false;
       scope.sqsService = null;
-      scope.trackIndex = 0;
 
       //----------------------------
       // private method list
@@ -32004,7 +31931,7 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
         var streamHistoryEntry = buildStreamHistoryEntry(currentMedia);
         var streamHistory = streamHistoryEntry ? [streamHistoryEntry] : undefined;
 
-        scope.api.getNextMedia(scope.selectedStream.streamid, streamHistory, scope.currentMedia)
+        scope.api.getNextMedia(scope.selectedStream.streamid, streamHistory)
           .then(function (response) {
             scope.isLoadingInitialMedia = false;
             scope.requestInProgress = false;
@@ -32981,7 +32908,7 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
               userid: scope.api.userObject.user.userid,
               custid: scope.api.userObject.user.custid
             };
-            if(scope.selectedStream.music_type === 'pandoraradio') {
+            if(scope.selectedStream.music_type === 'pandora') {
               getMediaPlayingForStream(function(mediaInfo) {
                 if (mediaInfo) setMediaInfo(mediaInfo.streamingMedia);
                 deviceCommand.skipDevice(device, deviceCommandCallback);
@@ -33132,8 +33059,7 @@ function playerDirectiveCtrl ($window, $location, $rootScope, $timeout, intercom
               streamid: scope.me.streamid,
               deviceid: scope.me.device_id,
               media_type: media.mediaType,
-              created_at: moment().utc().format('YYYY-MM-DD HH:mm:ss'),
-              track_index: media.trackIndex
+              created_at: moment().utc().format('YYYY-MM-DD HH:mm:ss')
             };
 
             if (media.extra) {
