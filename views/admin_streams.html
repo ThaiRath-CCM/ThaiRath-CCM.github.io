@@ -247,6 +247,7 @@
                                  (!entStatus.isEnterprise && stream.userid !== me.user.userid) ||
                                  stream.active !== 1                                           ||
                                  stream.songInfo.mediaType === 'message'                       ||
+                                 songs[stream.streamid].musicType === 'pandora'                ||
                                  !userPerms.canRemoveSong
                               }"
                      ng-click='removeSong(stream)'
@@ -284,7 +285,8 @@
                         disabled:
                           (!entStatus.isEnterprise && stream.userid !== me.user.userid)
                           || stream.active !== 1
-                          || stream.songInfo.mediaType === 'message',
+                          || stream.songInfo.mediaType === 'message'
+                          || songs[stream.streamid].musicType === 'pandora',
                         'btn-default': !songs[stream.streamid].liked,
                         'btn-success': songs[stream.streamid].liked
                       }"

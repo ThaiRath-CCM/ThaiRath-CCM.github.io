@@ -57,7 +57,9 @@
                   </div>
                 </div>
               </td>
-              <td class="stream-content-feedback">
+              <td class="stream-content-feedback"
+                  ng-class="{ disabled: song.mediaType === 'Pandora' }"
+              >
                 <div class="stream-content-feedback-details">
                   <div class="stream-content-remove-actions">
                     <button class="remove-stream"

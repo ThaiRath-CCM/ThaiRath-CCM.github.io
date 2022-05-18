@@ -6278,7 +6278,7 @@ c(a.element).is("option")?(a.element.selected=!1,void this.$element.trigger("cha
 
 angular.module('config', [])
 
-.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-14',debug:true,apiUrl:'https://api-dev-c.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:false,artistRadio:true}})
+.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-15',debug:true,apiUrl:'https://api-dev-c.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:true,artistRadio:true}})
 
 ;
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#Polyfill
@@ -12402,6 +12402,7 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
       if ($scope.songs[streamid]) {
         $scope.songs[streamid].name = srcSong.title;
         $scope.songs[streamid].mediaType = srcSong.type;
+        $scope.songs[streamid].musicType = srcSong.playlistType;
         $scope.songs[streamid].artist = srcSong.artist;
         $scope.songs[streamid].stationid = null;
         $scope.songs[streamid].station = srcSong.station;
@@ -12413,6 +12414,7 @@ function AdminStreamsCtrl($modal, $scope, $window, api, me, subscription, subscr
         $scope.songs[streamid] = {
           name: srcSong.title,
           mediaType: srcSong.type,
+          musicType: srcSong.playlistType,
           artist: srcSong.artist,
           stationid: null,
           station: srcSong.station,

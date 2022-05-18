@@ -13345,6 +13345,10 @@ div.playlist-blurb .button-bar a {
   width: 120px;
   min-width: 120px;
 }
+.streamed-container table td.stream-content-feedback.disabled button {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .streamed-container .stream-content-song *,
 .streamed-container .stream-content-metadata,
 .streamed-container .stream-content-stream-details {
