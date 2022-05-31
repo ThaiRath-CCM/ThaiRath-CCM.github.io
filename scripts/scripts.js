@@ -6278,7 +6278,7 @@ c(a.element).is("option")?(a.element.selected=!1,void this.$element.trigger("cha
 
 angular.module('config', [])
 
-.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-15',debug:true,apiUrl:'https://api-dev-c.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:true,artistRadio:true}})
+.constant('ENV', {stationArtUrl:'https://media.cloudcovermusic.com/stationart/',name:'local_development_environment',version:'5.4.40-15',debug:true,apiUrl:'https://api-dev-alt.cloudcovermusic.com',webUrl:'http://localhost:9001',deviceStateUrl:'https://api-dev-alt.cloudcovermusic.com/device-state',intercomAppId:'xoqzlebt',recurly:'cloudcovermusic-dev',recurlyPublicKey:'ewr1-jd00BOBJigdVnTQFQEmSak',recurlyFraudDetectionEnabled:true,duo:{apiHostname:'api-5c2606f7.duosecurity.com'},featureFlags:{prop65:true,artistRadio:true}})
 
 ;
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#Polyfill
